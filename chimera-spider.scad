@@ -26,12 +26,12 @@
 include <E3D/chimera.scad>
 include <Geeetech/rostock_g2_spider.scad>
 
-module geeetech_spider_e3d_chimera()
+module geeetech_spider_e3d_chimera(zprobe = true)
 {
     difference() {
         union() {
-            rotate([0, 0, 180])
-            geeetech_rostock_g2_spider_blank();
+            rotate([0, 0, 240])
+            geeetech_rostock_g2_spider_blank(zprobe);
         }
         translate([-9, 0, -0.1])
             cylinder(d=10, h=10, $fn=16);
@@ -44,8 +44,7 @@ module geeetech_spider_e3d_chimera()
         translate([9, 9, -0.1])
             cylinder(d=3, h=10, $fn=16);
     }
-    
-    
+
     % translate([-15, -6, 0])     e3d_v6_chimera();
 }
 
