@@ -78,6 +78,8 @@ module e3d_v6_chimera_extruder()
 
 module e3d_v6_chimera()
 {
+    % translate([0, 18, -30]) rotate([90, 0, 0])
+        fan(size=30, height=10);
     e3d_v6_chimera_block();
     translate([6, 6, -49.6]) rotate([0, 0, -90])
         e3d_v6_chimera_extruder();

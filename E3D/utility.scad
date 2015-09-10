@@ -23,6 +23,21 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
+// All units are in mm
+
+// Origin is top, left, front
+module fan(size=20, height=5)
+{
+    translate([0, 0, -height]) {
+        difference() {
+                cube([size, size, height]);
+                translate([size/2, size/2, -0.1])
+                    cylinder(d=size*0.8, h=height+0.2, $fn=24);
+        }
+        translate([size/2, size/2, -0.1])
+            cylinder(d=size*0.5, h=height+0.2, $fn=24);
+    }
+}
 
 module drill_down(diameter=3, depth=5)
 {
