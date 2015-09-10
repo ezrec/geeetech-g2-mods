@@ -45,32 +45,69 @@ module geeetech_rostock_g2_spider_bracket()
     mirror([1, 0, 0]) geeetech_rostock_g2_spider_leg();
 }
 
-module geeetech_rostock_g2_spider_blank()
+
+module geeetech_rostock_g2_spider_zprobe()
 {
+    translate([-10, 26, 0])
+        cube([20, 4, 8]);
+    translate([-6, 20, 0])
+        cube([12, 10, 19.2]);
+}
 
-    cylinder(r=30, h=8, $fn=24);
+module geeetech_rostock_g2_spider_blank(zprobe = true)
+{
+    difference() {
+        union() {
+            cylinder(r=30, h=8, $fn=24);
 
-    for (i = [0:2]) {
-        rotate([0, 0, i*120]) geeetech_rostock_g2_spider_bracket();
+            for (i = [0:2]) {
+                rotate([0, 0, i*120]) geeetech_rostock_g2_spider_bracket();
+            }
+    
+            if (zprobe)
+                geeetech_rostock_g2_spider_zprobe();
+        }
+                // Z-probe drills
+        if (zprobe) {
+           translate([-4.7, 30.1, 5.5])
+                rotate([90, 0, 0])
+                    cylinder(d=3-0.2, h=8.2, $fn=12);
+           translate([4.7, 30.1, 5.5])
+                rotate([90, 0, 0])
+                    cylinder(d=3-0.2, h=8.2, $fn=12);
+            translate([0, 23.5, -0.1])
+                cylinder(d=3+0.5, h=20, $fn=12);
+            translate([-1.5, 24, 8])
+                cube([3, 8, 18]);
+            translate([0, 22-0.5, 17])
+                rotate([0, 0, 15]) cube([8, 3, 3]);
+        }
     }
 }
 
-module geeetech_rostock_g2_spider()
+module geeetech_rostock_g2_spider(zprobe = true)
 {
     difference() {
-        geeetech_rostock_spider_blank();
-        for (i = [0:5]) {
+        geeetech_rostock_g2_spider_blank(zprobe);
+        
+        // Drills for Geetech J-Head and fan mounts
+        for (i = [1:5]) {
             rotate([0, 0, i*60]) translate([0, 25, -0.1])
                 cylinder(d=4, h=10, $fn=10);
         }
+        
+        // Central mounting hole for Geeetech J-Head mount
         translate([0, 0, -0.1])
             cylinder(d=40, h=10, $fn=32);
+
     }
 }
 
 // Debug interference model:
- /*   color([1,0,0]) translate([-46.2, -40, 0])
+if (false) {
+    color([1,0,0]) translate([-46.2, -40, 0])
             import("RKMA-B02-platform.STL", convexity=5);
-  */
+    geeetech_rostock_g2_spider(zprobe=true);
+}
 
 // vim: set shiftwidth=4 expandtab: //
