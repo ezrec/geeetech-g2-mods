@@ -45,4 +45,13 @@ module drill_down(diameter=3, depth=5)
         cylinder(r=diameter/2, h=depth+0.01, $fn=10);
 }
 
+// Like the towers of hanoi, this adds a cylinder, then calls
+// children() to stack another on top. Useful for the E3D heat sinks.
+module hanoi(d=1, h=1, fn=24)
+{
+    cylinder(d=d, h=h, $fn=fn);
+    translate([0, 0, h])
+        children();
+}
+
 // vim: set shiftwidth=4 expandtab: //
