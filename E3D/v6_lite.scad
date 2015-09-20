@@ -26,7 +26,11 @@
 
 include <utility.scad>
 
+include <v6_block.scad>
+include <v6_nozzle.scad>
+
 // Cold side of the hot end, origin at center of filament feed, bottom of sink
+// Children are attached at the bottom center of the groove mount
 module e3d_v6_lite_sink() {
     difference() {
         union() {
@@ -72,8 +76,18 @@ module e3d_v6_lite_sink() {
                 cylinder(d=8, h=6.5, $fn=24);
         }
     }
+
+    children();
 }
 
-e3d_v6_lite_sink();
+// Origin is nozzle top, children attached at the bottom center of
+// the groove mount
+module e3d_v6_lite()
+{
+        e3d_v6_nozzle()
+        e3d_v6_block()
+        e3d_v6_lite_sink()
+        children();
+}
 
 // vim: set shiftwidth=4 expandtab: //

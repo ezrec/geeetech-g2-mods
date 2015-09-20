@@ -27,10 +27,11 @@
 
 include <utility.scad>
 
-// Origin (0,0,0) is at top, front, left corner
+// Origin (0,0,0) is bottom center of transition zone thread
+// Children attached at top center of transition zone thread
 module e3d_v6_block()
 {
-        translate([0, 0, -11.5])
+        translate([-15.5, -8, 0])
         difference() {
             cube([20, 16, 11.5]);
             translate([2.5, 8, 11.5])
@@ -51,6 +52,9 @@ module e3d_v6_block()
                     drill_down(diameter=1.5, depth=4.5);
                 }
         }
+
+        translate([0, 0, 11.5])
+            children();
 }
 
 // vim: set shiftwidth=4 expandtab: //

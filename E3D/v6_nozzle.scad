@@ -28,6 +28,7 @@
 // The nozzle tip is located at (0,0,0)
 // The nozzle is 12.5mm high
 // The nozzle defaults to the 0.3mm geometry
+// Children attached at the bottom center of the screw threads
 module e3d_v6_nozzle() {
     difference() {
         union() {
@@ -47,6 +48,9 @@ module e3d_v6_nozzle() {
         translate([0, 0, 12.5-10.7])
             cylinder(d=2, h=10.7+0.1, $fn=10);
     }
+
+    translate([0, 0, (12.5-10.7+3+1.5)])
+    children();
 }
 
 // vim: set shiftwidth=4 expandtab: //
