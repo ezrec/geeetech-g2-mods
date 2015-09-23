@@ -25,16 +25,16 @@
 
 module geeetech_rostock_g2_spider_leg()
 {
-  translate([14, 19, 0]) {
-    cube([9, 11, 8]);
-    cube([9, 15, 3]);
+  translate([14, 17, 0]) {
+    cube([9, 13, 8]);
+    cube([9, 17, 3]);
   }
   translate([14, 34, 6])
     rotate([0, 90, 0]) {
         difference() {
             cylinder(d=12, h=9, $fn=16);
             translate([0, 0, -0.1])
-            cylinder(d=6, h=9.2, $fn=16);
+            cylinder(d=6.25, h=9.2, $fn=16);
         }
     }
 }
@@ -54,11 +54,25 @@ module geeetech_rostock_g2_spider_zprobe()
         cube([12, 10, 19.2]);
 }
 
-module geeetech_rostock_g2_spider_blank(zprobe = true)
+module geeetech_rostock_g2_spider_blank(zprobe = true, hole=false)
 {
     difference() {
         union() {
-            cylinder(r=30, h=8, $fn=24);
+            translate([0, 0, 1.85]) minkowski() {
+                difference() {
+                    cylinder(r=28, h=4.485, $fn=60);
+                    if (hole) {
+                        // Central mounting hole for Geeetech J-Head mount
+                        translate([0, 0, -0.1])
+                            cylinder(d=44, h=10, $fn=60);
+                    }
+                }
+                rotate([0, 90, 0]) sphere(r=2);
+            }
+            difference() {
+                cylinder(r=30, h=3, $fn=60);
+                cylinder(r=20, h=3, $fn=60);
+            }
 
             for (i = [0:2]) {
                 rotate([0, 0, i*120]) geeetech_rostock_g2_spider_bracket();
@@ -88,7 +102,7 @@ module geeetech_rostock_g2_spider_blank(zprobe = true)
 module geeetech_rostock_g2_spider(zprobe = true)
 {
     difference() {
-        geeetech_rostock_g2_spider_blank(zprobe);
+        geeetech_rostock_g2_spider_blank(zprobe=zprobe, hole=true);
 
         // Drills for Geetech J-Head and fan mounts
         for (i = [1:5]) {
@@ -96,16 +110,12 @@ module geeetech_rostock_g2_spider(zprobe = true)
                 cylinder(d=4, h=10, $fn=10);
         }
 
-        // Central mounting hole for Geeetech J-Head mount
-        translate([0, 0, -0.1])
-            cylinder(d=40, h=10, $fn=32);
-
     }
 }
 
 // Debug interference model:
 if (false) {
-    color([1,0,0]) translate([-46.2, -40, 0])
+    # translate([-46.125, -40+0.125, 0])
             import("RKMA-B02-platform.STL", convexity=5);
     geeetech_rostock_g2_spider(zprobe=true);
 }
