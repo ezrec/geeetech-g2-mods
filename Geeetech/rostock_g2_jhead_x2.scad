@@ -22,24 +22,27 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
+module geeetech_rostock_g2_jhead_x2_drill_bolt()
+{
+    translate([7.5, 13, -3.1]) {
+        cylinder(d=3.6, h=9.2, $fn=12);
+        translate([0, 0, 6]) {
+            cylinder(r=6/sqrt(3), h=4, $fn=6);
+        }
+    }
+    translate([7.5, -13, -3.1]) {
+        cylinder(d=3.6, h=9.2, $fn=12);
+        translate([0, 0, 6]) {
+            cylinder(r=6/sqrt(3), h=4, $fn=6);
+        }
+    }
+    
+}
 
-
-module geeetech_rostock_g2_spider_jhead_x2_drill()
+module geeetech_rostock_g2_jhead_x2_drill()
 {
     translate([10, 0, -0.1])
-        cylinder(d=17, h=6.2);
-    translate([7.5, 13, -0.1]) {
-        cylinder(d=3.6, h=6.2, $fn=12);
-        translate([0, 0, 3]) {
-            cylinder(r=6/sqrt(3), h=4, $fn=6);
-        }
-    }
-    translate([7.5, -13, -0.1]) {
-        cylinder(d=3.6, h=6.2, $fn=12);
-        translate([0, 0, 3]) {
-            cylinder(r=6/sqrt(3), h=4, $fn=6);
-        }
-    }
+        cylinder(d=17, h=6.2, $fn=60);
 
     translate([25, 0, -0.1]) {
         cylinder(d=4.6, h=6.2, $fn=12);
@@ -47,28 +50,81 @@ module geeetech_rostock_g2_spider_jhead_x2_drill()
             cylinder(r=7/sqrt(3), h=4, $fn=6);
         }
     }
+    
+    geeetech_rostock_g2_jhead_x2_drill_bolt();
 }
 
-module geeetech_rostock_g2_spider_jhead_x2()
+module geeetech_rostock_g2_jhead_x2_upper()
 {
     difference() {
         union() {
             cylinder(r=20, h=6, $fn=120);
-            translate([-31.5, -12.5, 0])
-                cube([63, 25, 6]);
+            translate([-31.5+6, -12.5+6, 0])
+                minkowski() {
+                    cube([51, 13, 4]);
+                    cylinder(r=6, h=2, $fn=60);
+                }
         }
 
         // J-head drills
-        geeetech_rostock_g2_spider_jhead_x2_drill();
+        geeetech_rostock_g2_jhead_x2_drill();
         mirror([1, 0, 0])
-            geeetech_rostock_g2_spider_jhead_x2_drill();
+            geeetech_rostock_g2_jhead_x2_drill();
     }
+}
 
+module geeetech_rostock_g2_jhead_x2_lower()
+{
+    difference() {
+        union() {
+            minkowski() {
+                difference() {
+                    cylinder(r=18.5, h=4, $fn=30);
+                    translate([9.75, 0, 0])
+                        cylinder(r=7, h=4, $fn=30);
+                    translate([9.75, -7, 0])
+                        cube([10, 14, 4]);
+                    translate([-9.75, 0, 0])
+                        cylinder(r=7, h=4, $fn=30);
+                    translate([-19.75, -7, 0])
+                        cube([10, 14, 4]);
+                }
+                cylinder(d=2, h=0.5, $fn=24);
+            }
+            
+            translate([0, 0, 4.5]) minkowski() {
+                difference() {
+                    cylinder(r=18.5, h=4, $fn=30);
+                    translate([9.75, 0, 0])
+                        cylinder(r=9.25, h=6, $fn=30);
+                    translate([9.75, -9.25, 0])
+                        cube([10, 18.5, 6]);
+                    translate([-9.75, 0, 0])
+                        cylinder(r=9.25, h=6, $fn=30);
+                    translate([-19.75, -9.25, 0])
+                        cube([10, 18.5, 6]);
+                }
+                cylinder(d=2, h=0.5, $fn=24);
+            }
+        }
+        
+        translate([0, 0, 3]) {
+            geeetech_rostock_g2_jhead_x2_drill_bolt();
+            mirror([1, 0, 0])
+                geeetech_rostock_g2_jhead_x2_drill_bolt();
+        }
+    }
 }
 
 // Debug interference model
 if (false) {
-    color([1,0,0]) translate([-31.5, -20, 0])
-        import("GTH3-B02-01-Mount.STL");
-    geeetech_rostock_g2_spider_jhead_x2();
-}
+        union() {
+            translate([-31.5, -20, 0]) color([1, 0, 0]) import("G2s/GTH3-B02-01-Mount.STL");
+            geeetech_rostock_g2_jhead_x2_upper();
+        }
+        rotate([0, 180, 0]) {
+            translate([-18.12, -19.5, 0])
+            color([1, 0, 0]) import("G2s/GTH3-B02-02-Mount.STL");
+            geeetech_rostock_g2_jhead_x2_lower();
+        }
+};

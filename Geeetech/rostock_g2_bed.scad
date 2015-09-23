@@ -28,10 +28,10 @@ module rostock_g2_bed()
 {
 	translate([0, 0, -3])
 	difference() {
-		cylinder(r=107.5, h=3, $fn=90);
+		cylinder(d=215, h=3, $fn=90);
 		for (i = [0:2]) {
 			rotate([0, 0, 120*i])
-				translate([107.5-5, 0, 0]) {
+				translate([215/2-5, 0, 0]) {
 					cylinder(d=3, h=3, $fn=24);
 					translate([0, 0, 2])
 					cylinder(d1=3, d2=6, h=1, $fn=24);

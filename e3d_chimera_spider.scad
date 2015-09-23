@@ -26,7 +26,7 @@
 include <E3D/chimera.scad>
 include <Geeetech/rostock_g2_spider.scad>
 
-module geeetech_spider_e3d_chimera(zprobe = true)
+module e3d_chimera_spider(zprobe = true)
 {
     difference() {
         union() {
@@ -48,7 +48,15 @@ module geeetech_spider_e3d_chimera(zprobe = true)
     % translate([-15, -6, 0])     e3d_v6_chimera();
 }
 
+module e3d_chimera_spider_z_probe()
+{
+    e3d_chimera_spider(z_probe = true);
+}
 
-geeetech_spider_e3d_chimera();
+module e3d_chimera_spider_no_probe()
+{
+    e3d_chimera_spider(z_probe = false);
+}
+
 
 // vim: set shiftwidth=4 expandtab: //

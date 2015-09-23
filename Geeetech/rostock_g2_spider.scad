@@ -110,4 +110,14 @@ if (false) {
     geeetech_rostock_g2_spider(zprobe=true);
 }
 
+module geeetech_rostock_g2_spider_no_probe()
+{
+    geeetech_rostock_g2_spider(zprobe=false);
+}
+
+module geeetech_rostock_g2_spider_z_probe()
+{
+    geeetech_rostock_g2_spider(zprobe=true);
+}
+
 // vim: set shiftwidth=4 expandtab: //
