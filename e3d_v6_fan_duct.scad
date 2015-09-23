@@ -72,7 +72,7 @@ module e3d_v6_fan_duct()
 if (false) {
     % translate([0, 0, 30]) {
         rotate([-90, 0, 90])
-            import(     "V6.6_Duct.stl");
+            import(     "E3D/V6.6_Duct.stl");
         translate([0, 0, -46]) e3d_v6_lite();
     }
     % translate([0, 0, 30+2.5]) rotate([0, 0, 120]) geeetech_rostock_g2_spider();
