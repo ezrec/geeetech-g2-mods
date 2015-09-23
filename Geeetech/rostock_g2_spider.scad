@@ -63,7 +63,7 @@ module geeetech_rostock_g2_spider_blank(zprobe = true)
             for (i = [0:2]) {
                 rotate([0, 0, i*120]) geeetech_rostock_g2_spider_bracket();
             }
-    
+
             if (zprobe)
                 geeetech_rostock_g2_spider_zprobe();
         }
@@ -89,13 +89,13 @@ module geeetech_rostock_g2_spider(zprobe = true)
 {
     difference() {
         geeetech_rostock_g2_spider_blank(zprobe);
-        
+
         // Drills for Geetech J-Head and fan mounts
         for (i = [1:5]) {
             rotate([0, 0, i*60]) translate([0, 25, -0.1])
                 cylinder(d=4, h=10, $fn=10);
         }
-        
+
         // Central mounting hole for Geeetech J-Head mount
         translate([0, 0, -0.1])
             cylinder(d=40, h=10, $fn=32);
