@@ -29,10 +29,15 @@ MODELS := \
 
 all: $(MODELS:%=stl/%)
 
+clean:
+	$(RM) $(MODELS:%=stl/%)
+
 stl-%.scad: $(SCAD)
 
 stl-%.scad:
-	echo "$*();" | cat $(SCAD) - >$@
+	echo >$@
+	for d in $(SCAD); do echo "use <$$d>" >>$@; done
+	echo "$*();" >>$@
 
 stl/%.stl: stl-%.scad
 	@$(MKDIR) stl
