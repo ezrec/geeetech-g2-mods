@@ -22,6 +22,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
+use <utility.scad>;
+
 module geeetech_rostock_g2_jhead_x2_drill_bolt()
 {
     translate([7.5, 13, -3.1]) {
@@ -59,11 +61,7 @@ module geeetech_rostock_g2_jhead_x2_upper()
     difference() {
         union() {
             cylinder(r=20, h=6, $fn=120);
-            translate([-31.5+6, -12.5+6, 0])
-                minkowski() {
-                    cube([51, 13, 4]);
-                    cylinder(r=6, h=2, $fn=60);
-                }
+            utility_plate_mitred_edge([63, 25, 6], radius=6);
         }
 
         // J-head drills
