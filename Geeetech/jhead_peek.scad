@@ -22,42 +22,44 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
+// All units are in mm
 
-// Like the towers of hanoi, this adds a cylinder, then calls
-// children() to stack another on top. Useful for modelling J-Heads
-module utility_hanoi(d=1, h=1, fn=24)
+use <utility.scad>
+
+module geeetech_jhead_peek_nozzle()
 {
-    cylinder(d=d, h=h, $fn=fn);
-    translate([0, 0, h])
-        children();
-}
-
-
-// make a plate with mitred edges
-module utility_plate_mitred_edge(size=[20, 30, 4], radius=4)
-{
-    hull() {
-        translate([-(size[0]/2-radius), (size[1]/2-radius)])
-            cylinder(r=radius, h=size[2], $fn=24);
-        translate([-(size[0]/2-radius), -(size[1]/2-radius)])
-            cylinder(r=radius, h=size[2], $fn=24);
-        translate([(size[0]/2-radius), (size[1]/2-radius)])
-            cylinder(r=radius, h=size[2], $fn=24);
-        translate([(size[0]/2-radius), -(size[1]/2-radius)])
-            cylinder(r=radius, h=size[2], $fn=24);
+    cylinder(d1=1, d2=8, h=1.5);
+    translate([0, 0, 1.5]) {
+        cylinder(d=8, h=3);
+        translate([0, 0, 3]) {
+            translate([-5, -8])
+                cube([16, 18, 9.5]);
+            translate([0, 0, 9.5])
+                children();
+        }
     }
 }
 
-// make a torus a mitred top
-module utility_torus_mitred_top(id=10, od=40, height=8, radius=2)
+// Origin is bottom center of J-Head lock ring
+module geeetech_jhead_peek()
 {
-    rotate_extrude() {
-       hull() {
-            translate([id/2+radius, height-radius]) circle(r=radius,$fn=24);
-            translate([od/2-radius, height-radius]) circle(r=radius,$fn=24);
-            translate([id/2,0]) square([(od-id)/2, height-radius]);
+    translate([0, 0, -45])
+        difference() {
+            geeetech_jhead_peek_nozzle()
+            utility_hanoi(d=11, h=2)
+            utility_hanoi(d=16, h=29)
+            utility_hanoi(d=12, h=4.6)
+            utility_hanoi(d=16, h=4.8)
+            utility_hanoi(d=9.75, h=0.5)
+            utility_hanoi(d=11, h=7, fn=6)
+            utility_hanoi(d=9.75, h=2)
+            utility_hanoi(d=8, h=1+2/3)
+            utility_hanoi(d=11.2, h=1+1/3);
+
+            translate([0, 0, 2])
+                cylinder(d=4.25, h=67.2, $fn=24);
         }
-    } 
 }
 
+geeetech_jhead_peek();
 // vim: set shiftwidth=4 expandtab: //
