@@ -80,14 +80,16 @@ module e3d_v6_lite_sink() {
     children();
 }
 
-// Origin is nozzle top, children attached at the bottom center of
-// the groove mount
+// Origin is bottom center of the groove mount
 module e3d_v6_lite()
 {
+    translate([0, 0, -53])
         e3d_v6_nozzle()
         e3d_v6_block()
-        e3d_v6_lite_sink()
-        children();
+        e3d_v6_lite_sink();
 }
+
+e3d_v6_lite();
+
 
 // vim: set shiftwidth=4 expandtab: //

@@ -24,8 +24,8 @@
 //
 
 
-include <E3D/v6_lite.scad>
-include <Geeetech/rostock_g2_spider.scad>
+use <E3D/v6_lite.scad>
+use <Geeetech/rostock_g2_spider.scad>
 
 
 duct_depth=28;
@@ -68,14 +68,10 @@ module e3d_v6_fan_duct()
     }
 }
 
-
-if (false) {
-    % translate([0, 0, 30]) {
-        rotate([-90, 0, 90])
-            import(     "E3D/V6.6_Duct.stl");
-        translate([0, 0, -46]) e3d_v6_lite();
-    }
-    % translate([0, 0, 30+2.5]) rotate([0, 0, 120]) geeetech_rostock_g2_spider();
-
-    e3d_v6_fan_duct();
+% translate([0, 0, 37]) {
+    translate([0, 0, -7 ]) rotate([-90, 0, 90]) import(     "E3D/V6.6_Duct.stl");
+    e3d_v6_lite();
+    translate([0, 0, -7+2.5]) rotate([0, 0, 120]) geeetech_rostock_g2_spider();
 }
+
+e3d_v6_fan_duct();

@@ -89,7 +89,7 @@ module geeetech_rostock_g2_jhead_x2_lower()
                 }
                 cylinder(d=2, h=0.5, $fn=24);
             }
-            
+
             translate([0, 0, 4.5]) minkowski() {
                 difference() {
                     cylinder(r=18.5, h=4, $fn=30);
@@ -105,7 +105,7 @@ module geeetech_rostock_g2_jhead_x2_lower()
                 cylinder(d=2, h=0.5, $fn=24);
             }
         }
-        
+
         translate([0, 0, 3]) {
             geeetech_rostock_g2_jhead_x2_drill_bolt();
             mirror([1, 0, 0])
@@ -114,15 +114,22 @@ module geeetech_rostock_g2_jhead_x2_lower()
     }
 }
 
+module geeetech_rostock_g2_jhead_x2_mount()
+{
+    geeetech_rostock_g2_jhead_x2_upper();
+    rotate([0, 180, 0]) geeetech_rostock_g2_jhead_x2_lower();
+    translate([-10, 0, -5]) children(0);
+    translate([ 10, 0, -5]) children(1);
+}
+
+
 // Debug interference model
-if (false) {
-        union() {
-            translate([-31.5, -20, 0]) color([1, 0, 0]) import("G2s/GTH3-B02-01-Mount.STL");
-            geeetech_rostock_g2_jhead_x2_upper();
-        }
-        rotate([0, 180, 0]) {
-            translate([-18.12, -19.5, 0])
-            color([1, 0, 0]) import("G2s/GTH3-B02-02-Mount.STL");
-            geeetech_rostock_g2_jhead_x2_lower();
-        }
-};
+union() {
+    # translate([-31.5, -20, 0]) import("G2s/GTH3-B02-01-Mount.STL");
+    geeetech_rostock_g2_jhead_x2_upper();
+}
+
+rotate([0, 180, 0]) {
+    # translate([-18.12, -19.5, 0]) import("G2s/GTH3-B02-02-Mount.STL");
+    geeetech_rostock_g2_jhead_x2_lower();
+}
