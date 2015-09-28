@@ -10,7 +10,8 @@ SCAD := \
 	mk8_extruder_guide.scad \
 	rod_end_shim.scad \
 	e3d_v6_fan_duct.scad \
-	e3d_chimera_spider.scad
+	e3d_chimera_spider.scad \
+	jhead_x2_fan_duct.scad
 
 MODELS := \
 	geeetech_rostock_g2_lock_ring.stl \
@@ -24,7 +25,8 @@ MODELS := \
 	rod_end_shim.stl \
 	e3d_v6_fan_duct.stl \
 	e3d_chimera_spider_no_probe.stl \
-	e3d_chimera_spider_z_probe.stl
+	e3d_chimera_spider_z_probe.stl \
+	jhead_x2_fan_duct.stl
 
 
 all: $(MODELS:%=stl/%)
