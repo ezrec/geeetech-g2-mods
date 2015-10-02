@@ -20,6 +20,7 @@
 
 `cimera-spider.scad` - Spider for E3D Chimera/Cyclops hot ends
 
-## E3D v6 Add-Ons
+## Fan Ducts
 
-`e3d_v6_fan_duct.scad` - Fan duct for a E3D v6 or v6Lite mounted on a G2 Spider
+`e3d_v6_fan_duct.scad` - Hot-air fan duct for a E3D v6 or v6Lite mounted on a G2 Spider
+`universal_fan_duct.scad` - Universal cool-air fan duct for E3D v6 or J-Head, single or dual mount - mounts instead of Z-Probe switch!
