@@ -38,12 +38,11 @@ module geeetech_rostock_g2_jhead_x2_drill_bolt()
             cylinder(r=6/sqrt(3), h=4, $fn=6);
         }
     }
-    
 }
 
-module geeetech_rostock_g2_jhead_x2_drill()
+module geeetech_rostock_g2_jhead_x2_drill(spread=0)
 {
-    translate([10, 0, -0.1])
+    translate([10+spread/2, 0, -0.1])
         cylinder(d=17, h=6.2, $fn=60);
 
     translate([25, 0, -0.1]) {
@@ -52,11 +51,11 @@ module geeetech_rostock_g2_jhead_x2_drill()
             cylinder(r=7/sqrt(3), h=4, $fn=6);
         }
     }
-    
+
     geeetech_rostock_g2_jhead_x2_drill_bolt();
 }
 
-module geeetech_rostock_g2_jhead_x2_upper()
+module geeetech_rostock_g2_jhead_x2_upper(spread=0)
 {
     difference() {
         union() {
@@ -65,26 +64,26 @@ module geeetech_rostock_g2_jhead_x2_upper()
         }
 
         // J-head drills
-        geeetech_rostock_g2_jhead_x2_drill();
+        geeetech_rostock_g2_jhead_x2_drill(spread=spread);
         mirror([1, 0, 0])
-            geeetech_rostock_g2_jhead_x2_drill();
+            geeetech_rostock_g2_jhead_x2_drill(spread=spread);
     }
 }
 
-module geeetech_rostock_g2_jhead_x2_lower()
+module geeetech_rostock_g2_jhead_x2_lower(spread=0)
 {
     difference() {
         union() {
             minkowski() {
                 difference() {
                     cylinder(r=18.5, h=4, $fn=30);
-                    translate([9.75, 0, 0])
+                    translate([(9.75+spread/2), 0, 0])
                         cylinder(r=7, h=4, $fn=30);
-                    translate([9.75, -7, 0])
+                    translate([(9.75+spread/2), -7, 0])
                         cube([10, 14, 4]);
-                    translate([-9.75, 0, 0])
+                    translate([-(9.75+spread/2), 0, 0])
                         cylinder(r=7, h=4, $fn=30);
-                    translate([-19.75, -7, 0])
+                    translate([-(19.75+spread/2), -7, 0])
                         cube([10, 14, 4]);
                 }
                 cylinder(d=2, h=0.5, $fn=24);
@@ -93,13 +92,13 @@ module geeetech_rostock_g2_jhead_x2_lower()
             translate([0, 0, 4.5]) minkowski() {
                 difference() {
                     cylinder(r=18.5, h=4, $fn=30);
-                    translate([9.75, 0, 0])
+                    translate([(9.75+spread/2), 0, 0])
                         cylinder(r=9.25, h=6, $fn=30);
-                    translate([9.75, -9.25, 0])
+                    translate([(9.75+spread/2), -9.25, 0])
                         cube([10, 18.5, 6]);
-                    translate([-9.75, 0, 0])
+                    translate([-(9.75+spread/2), 0, 0])
                         cylinder(r=9.25, h=6, $fn=30);
-                    translate([-19.75, -9.25, 0])
+                    translate([-(19.75+spread/2), -9.25, 0])
                         cube([10, 18.5, 6]);
                 }
                 cylinder(d=2, h=0.5, $fn=24);
@@ -114,12 +113,12 @@ module geeetech_rostock_g2_jhead_x2_lower()
     }
 }
 
-module geeetech_rostock_g2_jhead_x2_mount()
+module geeetech_rostock_g2_jhead_x2_mount(spread=0)
 {
-    geeetech_rostock_g2_jhead_x2_upper();
-    rotate([0, 180, 0]) geeetech_rostock_g2_jhead_x2_lower();
-    translate([-10, 0, -5]) children(0);
-    translate([ 10, 0, -5]) children(1);
+    geeetech_rostock_g2_jhead_x2_upper(spread=spread);
+    rotate([0, 180, 0]) geeetech_rostock_g2_jhead_x2_lower(spread=spread);
+    translate([-(10+spread/2), 0, -5]) children(0);
+    translate([ (10+spread/2), 0, -5]) children(1);
 }
 
 
