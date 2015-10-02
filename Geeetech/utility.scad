@@ -48,6 +48,20 @@ module utility_plate_mitred_edge(size=[20, 30, 4], radius=4)
     }
 }
 
+module utility_plate_mitred_top(size=[20, 30, 20], radius=4)
+{
+    translate([-size[0]/2, -size[1]/2, 0])
+    hull() {
+        cube([size[0], size[1], size[2] - radius]);
+        translate([radius, 0, size[2] - radius])
+            rotate([-90, 0, 0]) {
+                cylinder(r=radius, h=size[1]);
+                translate([size[0]-radius*2, 0, 0])
+                    cylinder(r=radius, h=size[1]);
+        }
+    }
+}
+
 // make a torus a mitred top
 module utility_torus_mitred_top(id=10, od=40, height=8, radius=2)
 {
@@ -57,7 +71,7 @@ module utility_torus_mitred_top(id=10, od=40, height=8, radius=2)
             translate([od/2-radius, height-radius]) circle(r=radius,$fn=24);
             translate([id/2,0]) square([(od-id)/2, height-radius]);
         }
-    } 
+    }
 }
 
 // vim: set shiftwidth=4 expandtab: //
