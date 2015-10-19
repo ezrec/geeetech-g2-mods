@@ -9,6 +9,7 @@ SCAD := \
 	Geeetech/rostock_g2_jhead_x2.scad \
 	mk8_extruder_guide.scad \
 	rod_end_shim.scad \
+	e3d_v6_mount.scad \
 	e3d_v6_fan_duct.scad \
 	e3d_chimera_spider.scad \
 	universal_fan_duct.scad
@@ -23,6 +24,10 @@ MODELS := \
 	geeetech_rostock_g2_jhead_x2_lower.stl \
 	mk8_extruder_guide.stl \
 	rod_end_shim.stl \
+	e3d_v6_x1_mount_upper.stl \
+	e3d_v6_x1_mount_lower.stl \
+	e3d_v6_x2_mount_upper.stl \
+	e3d_v6_x2_mount_lower.stl \
 	e3d_v6_fan_duct.stl \
 	e3d_chimera_spider_no_probe.stl \
 	e3d_chimera_spider_z_probe.stl \

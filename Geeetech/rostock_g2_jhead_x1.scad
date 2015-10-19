@@ -31,7 +31,7 @@ module geeetech_rostock_g2_jhead_x1_drill_m4()
 
 module geeetech_rostock_g2_jhead_x1_drill_m3()
 {
-    translate([0, 0, 2.40]) cylinder(r=5.6/sqrt(3), h=8, $fn=6);
+    translate([0, 0, 2.40]) cylinder(r=5.9/sqrt(3), h=8, $fn=6);
     translate([0, 0, -4])
     cylinder(d=3.52, h=10, $fn=24);
 }
@@ -63,40 +63,27 @@ module geeetech_rostock_g2_jhead_x1_upper()
     }
 }
 
-module geeetech_rostock_g2_jhead_x1_lower()
+/* Use groovemount = 5mm for Geeetech J-Heads, groovemount = 6mm for E3D hotends
+ */
+module geeetech_rostock_g2_jhead_x1_lower(groovemount = 5)
 {
     difference() {
-        union() {
-            minkowski() {
-                difference() {
-                    cylinder(r=17.5, h=3.5, $fn=60);
-                    translate([-1.125, 0, 0])  cylinder(r=8, h=3.5);
-                    translate([-1.125, -8, 0])
-                        cube([20, 16, 3.5]);
-                }
-                cylinder(r=2, h=1, $fn=24);
-            }
-            translate([0, 0, 3.5]) minkowski() {
-                difference() {
-                    cylinder(r=17.5, h=4.5, $fn=60);
-                    translate([-1.125, 0, 0])  cylinder(r=10.25, h=4.5);
-                    translate([-1.125, -10.25, 0])
-                        cube([20, 20.5, 4.5]);
-                }
-                cylinder(r=2, h=1, $fn=24);
-            }
-        }
+        cylinder(d=39, h=9, $fn=48);
+        translate([-1, 0, -0.1]) cylinder(d=12.025, h=9.2, $fn=48);
+        translate([-1, -12.025/2, -0.1]) cube([39/2 + 1 + 0.1, 12.025, 9.2]);
+        translate([-1, 0, groovemount-0.333]) cylinder(d=16.5, h=9, $fn=48);
+        translate([-1, -16.25/2,groovemount-0.333 ]) cube([39/2 + 1 + 0.1, 16.5, 9.2]);
         translate([0, 0, 3.6]) geeetech_rostock_g2_jhead_x1_bolts();
     }
 }
 
-if (false) {
+union() {
     union() {
-        translate([-14, -30, 0]) color([1, 0, 0]) import("G2/GTH3-B01-01-Mount.STL");
+        # translate([-14, -30, 0]) import("G2/GTH3-B01-01-Mount.STL");
         geeetech_rostock_g2_jhead_x1_upper();
     }
     rotate([0, 180, 0]) {
-        rotate([0, 0, 180]) translate([-18.55, -19.5]) color([1, 0, 0]) import("G2/GTH3-B01-02-Mount.STL");
+        # rotate([0, 0, 180]) translate([-18.55, -19.5]) import("G2/GTH3-B01-02-Mount.STL");
         geeetech_rostock_g2_jhead_x1_lower();
     }
 }

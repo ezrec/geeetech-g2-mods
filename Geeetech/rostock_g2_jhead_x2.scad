@@ -70,28 +70,28 @@ module geeetech_rostock_g2_jhead_x2_upper(spread=0)
     }
 }
 
-module geeetech_rostock_g2_jhead_x2_lower(spread=0)
+module geeetech_rostock_g2_jhead_x2_lower(spread=0, groovemount = 5)
 {
     difference() {
         union() {
             minkowski() {
                 difference() {
-                    cylinder(r=18.5, h=4, $fn=30);
+                    cylinder(r=18.5, h=groovemount-1, $fn=30);
                     translate([(9.75+spread/2), 0, 0])
-                        cylinder(r=7, h=4, $fn=30);
+                        cylinder(r=7, h=9, $fn=30);
                     translate([(9.75+spread/2), -7, 0])
-                        cube([10, 14, 4]);
+                        cube([10, 14, 9]);
                     translate([-(9.75+spread/2), 0, 0])
-                        cylinder(r=7, h=4, $fn=30);
+                        cylinder(r=7, h=9, $fn=30);
                     translate([-(19.75+spread/2), -7, 0])
-                        cube([10, 14, 4]);
+                        cube([10, 14, 9]);
                 }
                 cylinder(d=2, h=0.5, $fn=24);
             }
 
-            translate([0, 0, 4.5]) minkowski() {
+            translate([0, 0, groovemount-0.5]) minkowski() {
                 difference() {
-                    cylinder(r=18.5, h=4, $fn=30);
+                    cylinder(r=18.5, h=(9-groovemount), $fn=30);
                     translate([(9.75+spread/2), 0, 0])
                         cylinder(r=9.25, h=6, $fn=30);
                     translate([(9.75+spread/2), -9.25, 0])
