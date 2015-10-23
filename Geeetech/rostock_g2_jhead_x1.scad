@@ -68,11 +68,11 @@ module geeetech_rostock_g2_jhead_x1_upper()
 module geeetech_rostock_g2_jhead_x1_lower(groovemount = 5)
 {
     difference() {
-        cylinder(d=39, h=9, $fn=48);
+        cylinder(d=38.75, h=9, $fn=64);
         translate([-1, 0, -0.1]) cylinder(d=12.025, h=9.2, $fn=48);
         translate([-1, -12.025/2, -0.1]) cube([39/2 + 1 + 0.1, 12.025, 9.2]);
-        translate([-1, 0, groovemount-0.333]) cylinder(d=16.5, h=9, $fn=48);
-        translate([-1, -16.25/2,groovemount-0.333 ]) cube([39/2 + 1 + 0.1, 16.5, 9.2]);
+        translate([-1, 0, groovemount - 0.05]) cylinder(d=16.5, h=9, $fn=48);
+        translate([-1, -16.25/2,groovemount - 0.05 ]) cube([39/2 + 1 + 0.1, 16.5, 9.2]);
         translate([0, 0, 3.6]) geeetech_rostock_g2_jhead_x1_bolts();
     }
 }

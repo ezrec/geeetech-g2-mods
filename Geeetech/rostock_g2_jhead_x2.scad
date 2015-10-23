@@ -113,10 +113,10 @@ module geeetech_rostock_g2_jhead_x2_lower(spread=0, groovemount = 5)
     }
 }
 
-module geeetech_rostock_g2_jhead_x2_mount(spread=0)
+module geeetech_rostock_g2_jhead_x2_mount(spread=0, groovemount=5)
 {
     geeetech_rostock_g2_jhead_x2_upper(spread=spread);
-    rotate([0, 180, 0]) geeetech_rostock_g2_jhead_x2_lower(spread=spread);
+    rotate([0, 180, 0]) geeetech_rostock_g2_jhead_x2_lower(spread=spread, groovemount=groovemount);
     translate([-(10+spread/2), 0, -5]) children(0);
     translate([ (10+spread/2), 0, -5]) children(1);
 }
