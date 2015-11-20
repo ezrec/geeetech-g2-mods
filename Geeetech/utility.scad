@@ -62,14 +62,18 @@ module utility_plate_mitred_top(size=[20, 30, 20], radius=4)
     }
 }
 
-// make a torus a mitred top
-module utility_torus_mitred_top(id=10, od=40, height=8, radius=2)
+// make a cylinder or torus a mitred top
+module utility_torus_mitred_top(id=10, od=40, height=8, radius=2, hole = true)
 {
     rotate_extrude() {
-       hull() {
+        hull()
+        {
             translate([id/2+radius, height-radius]) circle(r=radius,$fn=24);
             translate([od/2-radius, height-radius]) circle(r=radius,$fn=24);
-            translate([id/2,0]) square([(od-id)/2, height-radius]);
+            if (hole)
+                translate([id/2,0]) square([(od-id)/2, height-radius]);
+            else
+                square([od/2, height - radius]);
         }
     }
 }

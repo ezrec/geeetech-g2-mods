@@ -28,6 +28,8 @@ MODELS := \
 	e3d_v6_x1_mount_lower.stl \
 	e3d_v6_x2_mount_upper.stl \
 	e3d_v6_x2_mount_lower.stl \
+	e3d_v6_x2_spider.stl \
+	e3d_v6_x2_lock.stl \
 	e3d_v6_fan_duct.stl \
 	e3d_chimera_spider_no_probe.stl \
 	e3d_chimera_spider_z_probe.stl \

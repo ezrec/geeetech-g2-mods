@@ -56,11 +56,11 @@ module geeetech_rostock_g2_spider_zprobe()
         cube([12, 10, 19.2]);
 }
 
-module geeetech_rostock_g2_spider_blank(zprobe = true, hole=false)
+module geeetech_rostock_g2_spider_blank(zprobe = true, hole = false)
 {
     difference() {
         union() {
-            utility_torus_mitred_top(id=40.125, od=60, height=8, radius=1.5);
+            utility_torus_mitred_top(id=40.125, od=60, height=8, radius=1.5, hole=hole);
 
             for (i = [0:2]) {
                 rotate([0, 0, i*120]) geeetech_rostock_g2_spider_bracket();
@@ -87,17 +87,16 @@ module geeetech_rostock_g2_spider_blank(zprobe = true, hole=false)
     }
 }
 
-module geeetech_rostock_g2_spider(zprobe = true)
+module geeetech_rostock_g2_spider(zprobe = true, hole = true)
 {
     difference() {
-        geeetech_rostock_g2_spider_blank(zprobe=zprobe, hole=true);
+        geeetech_rostock_g2_spider_blank(zprobe=zprobe, hole=hole);
 
         // Drills for Geetech J-Head and fan mounts
-        for (i = [1:5]) {
+        for (i = [(zprobe ? 1 : 0):5]) {
             rotate([0, 0, i*60]) translate([0, 25, -0.1])
                 cylinder(d=4.25, h=10, $fn=24);
         }
-
     }
 }
 
