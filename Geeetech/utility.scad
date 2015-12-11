@@ -73,7 +73,7 @@ module utility_torus_mitred_top(id=10, od=40, height=8, radius=2, hole = true)
             if (hole)
                 translate([id/2,0]) square([(od-id)/2, height-radius]);
             else
-                square([od/2, height - radius]);
+                square([od/2, height]);
         }
     }
 }
