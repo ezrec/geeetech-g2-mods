@@ -22,56 +22,161 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
+// All units are in mm
 
-
+use <e3d_v6_mount.scad>
+use <e3d_v6_probe.scad>
 use <E3D/v6_lite.scad>
-use <Geeetech/rostock_g2_spider.scad>
+use <blower_40mm.scad>
+use <mini_height_sensor.scad>
+
+// Optimize part for quickest printing - use an integer multiple of the printer's nozzle size
+machine_nozzle = 0.4;   // Your part printing machine's nozzle width
+wall_width = machine_nozzle * 2;    // Wall thickness - should be a multiple of machine_nozzle;
+
+// Size of the output of the blower
+blower_out= [16.3, 25.5, 3];
+
+neck_width = 20; // Distance between head bolts for the neck
+out_depth = 10;
+
+duct_z = 36; // Height from base to next
+duct_height = duct_z;
+
+head_gap = 30; // Distance between J-heads
+duct_gap = 11; // Distance from J-heads
+
+blower_shift_extra = 10;
+
+neck_height = 35;
+
+// Calculated parameters
+
+neck_size = [blower_out[0]+2*wall_width, neck_width];
+duct_slice = 0.1;
 
 
-duct_depth=28;
-duct_angle=52.5;
+blower_shift = ((blower_out[1]+2*wall_width)-neck_width)/2;
 
-module e3d_v6_fan_duct()
+module e3d_v6_fan_duct_slice(size=[blower_out[0]+2*wall_width, neck_width], cutout=false, guides=4)
 {
-    difference() {
-        union() {
-            translate([-15, 0, 4])
-                cube([30, duct_depth, 26]);
-            translate([-14, 1, 5])
-                cube([28, duct_depth-2, 24]);
-             translate([0, duct_depth-2, 9]) 
-         rotate([-(90 + duct_angle), 0, 180]) scale([0.85, 0.4, 1])
-                 cylinder(r1=15, r2=5, h=duct_depth/2*cos(duct_angle) + 20*sin(duct_angle));
-          rotate([-(90 + duct_angle), 0, 0]);
-          translate([0, 28, 16]) sphere(r=14);
-          translate([0, 25, 30]) cylinder(r=4, h=2.5);
-        }
-
-        translate([0, duct_depth + 0.1, 17]) {
-            rotate([90, 0, 0]) cylinder(r=11.5, h=duct_depth-5);
-        }
-         translate([0, duct_depth-2, 9]) 
-         rotate([-(90 + duct_angle), 0, 180]) scale([0.85, 0.4, 1]) 
-
-                        cylinder(r1=14, r2=4, h=
-            duct_depth/2*cos(duct_angle) + 20*sin(duct_angle));
-
-         translate([0, 0, -0.1]) difference() {
-            cylinder(r=13, h=30.2);
-            translate([0, -3, 0]) rotate([0, 0, 45]) cube([26, 26, 30.2]);
-        }
-        translate([0, 0, -0.1]) cylinder(r=11.2, h=30.2);
-
-        translate([0, 28, 16]) sphere(r=13);
-
-        translate([0, 25, 30+2.5]) drill_down(depth=6, r=2.9);
+       difference() {
+        square([size[0], size[1]]);
+        translate([wall_width, wall_width]) square([size[0]-wall_width*2, size[1]-wall_width*2]);
+        if (cutout)
+            translate([0, wall_width]) square([wall_width, size[1]-wall_width*2]);
+    }
+    if (guides > 0) for (i = [1:guides-1]) {
+        translate([0,(size[1]-wall_width)/guides*i+wall_width/2, 0])
+        square([size[0], wall_width]);
     }
 }
 
-% translate([0, 0, 37]) {
-    translate([0, 0, -7 ]) rotate([-90, 0, 90]) import(     "E3D/V6.6_Duct.stl");
-    e3d_v6_lite();
-    translate([0, 0, -7+2.5]) rotate([0, 0, 120]) geeetech_rostock_g2_spider();
+module e3d_v6_fan_duct_blower_adapter(height=7, size)
+{
+     difference() {
+        union() {
+            translate([wall_width, wall_width, 0]) cube([size[0], size[1], height+size[2]]);
+            translate([-1, -1, height-1]) cube([size[0]+2, size[1]+2, 1]);
+            cube([size[0]+2*wall_width, size[1]+2*wall_width, height]);
+        }
+        translate([wall_width*2, wall_width*2, -0.1])
+          cube([size[0]-2*wall_width, size[1]-2*wall_width, height+size[2]+0.2]);
+      }
+      
+      linear_extrude(height=height+size[2]) e3d_v6_fan_duct_slice(size=size);
+
+      * translate([0, 0, height/2]) e3d_v6_fan_duct_zip_tie_mount(size=[size[1]+2*wall_width, height]);
+
+     % translate([-1.6, 18, height+20])
+        rotate([-90, 180, -90]) blower();
 }
+
+module e3d_v6_fan_duct_outlet()
+{
+    rotate_extrude(convexity=4, $fn=180) {
+        translate([7, 0]) 
+            difference() {
+                square([5, 4]);
+                translate([wall_width, 0]) square([4-wall_width*2, 4-wall_width]);
+            }
+        }
+    difference() {
+        cylinder(r=12, h=4-wall_width*3, $fn=180);
+        translate([0, 0, -0.1]) cylinder(r1=7+2*wall_width, r2=12-wall_width, h=4-wall_width*3 + 0.2, $fn=180);
+    }
+}
+
+module e3d_v6_fan_duct_outflow()
+{
+    for (slice=[0:duct_slice:duct_height]) {
+        scale_from = (duct_height-slice)/(duct_height);
+        scale_to = slice/(duct_height);
+        translate([30*scale_from+duct_gap*scale_to, -neck_width/2*scale_from + (-head_gap/2-out_depth/2)*scale_to, 30-slice-duct_slice])
+            linear_extrude(height=duct_slice) e3d_v6_fan_duct_slice(size=[neck_size[0]*scale_from+out_depth*scale_to,neck_size[1]/2], guides=2);
+    }
+
+    // Exit ducting & fan mount
+    translate([duct_gap, -head_gap/2-out_depth/2, 30-duct_height-3]) {
+        difference() {
+            union() {
+                cube([out_depth, neck_size[1]/2, 3]);
+                translate([-duct_gap, out_depth/2, duct_z - duct_height]) e3d_v6_fan_duct_outlet();
+            }
+            translate([-wall_width-2, wall_width, wall_width]) cube([out_depth+2, neck_size[1]/2-2*wall_width, 3-wall_width]);
+        }
+    }
+}
+
+module e3d_v6_fan_duct_attachment()
+{
+      difference() {
+        translate([10, -10, 5]) union() {
+            cube([neck_width, 20, 6]);
+            translate([0, -15, 0]) cube([6, 50, 6]);
+        }
+        rotate([0, 0, -90]) e3d_v6_spider();
+      }
+}
+
+module e3d_v6_fan_duct()
+{
+    translate([0, 0, -44]) {
+        translate([30-blower_shift-blower_shift_extra, -blower_shift-neck_width/2, 30+neck_height + blower_shift_extra]) {
+          e3d_v6_fan_duct_blower_adapter(height=7, size=blower_out);
+        }
+        translate([30, -neck_width/2, 30]) {
+            translate([-blower_shift, -blower_shift, neck_height]) for (i = [0:0.1:blower_shift_extra])
+                translate([-i, 0, i])
+                linear_extrude(height=0.1) e3d_v6_fan_duct_slice(size=[blower_out[0]+2*wall_width, blower_out[1]+wall_width*2]);
+
+            translate([-blower_shift, 0, neck_height])  for (i = [0:0.1:blower_shift]) {
+                translate([i, i-blower_shift, -i-0.1]) {
+                    linear_extrude(height=0.1) e3d_v6_fan_duct_slice(size=[blower_out[0]+2*wall_width, blower_out[1]+2*wall_width-i*2]);
+
+                }
+            }
+            linear_extrude(height=neck_height-blower_shift, convexity=4) e3d_v6_fan_duct_slice(size=neck_size);
+        }
+ 
+        e3d_v6_fan_duct_outflow();
+        mirror([0, 1, 0]) e3d_v6_fan_duct_outflow();
+        
+    }
+    
+    e3d_v6_fan_duct_attachment();
+ 
+}
+
+* union() {
+    rotate([0, 0, 90]) e3d_v6_spider() {
+            rotate([0, 0, 0]) e3d_v6_lite();
+            rotate([0, 0, 180]) e3d_v6_lite();
+    }
+    rotate([0, 0, -90]) e3d_v6_probe();
+}
+
+// 37 = Geeetech j-heads
+// 47 = E3D heads
 
 e3d_v6_fan_duct();

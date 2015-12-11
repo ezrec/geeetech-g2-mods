@@ -24,11 +24,8 @@ MODELS := \
 	geeetech_rostock_g2_jhead_x2_lower.stl \
 	mk8_extruder_guide.stl \
 	rod_end_shim.stl \
-	e3d_v6_x1_mount_upper.stl \
-	e3d_v6_x1_mount_lower.stl \
-	e3d_v6_x2_mount_upper.stl \
-	e3d_v6_x2_mount_lower.stl \
-	e3d_v6_x2_spider.stl \
+	e3d_v6_spider.stl \
+	e3d_v6_x1_lock.stl \
 	e3d_v6_x2_lock.stl \
 	e3d_v6_fan_duct.stl \
 	e3d_chimera_spider_no_probe.stl \
