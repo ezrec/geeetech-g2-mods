@@ -33,14 +33,19 @@
 // Measure with calipers - height of the shims should be no
 // more than 0.6mm, and no less than 0.2mm.
 
+module rod_end_shim_unit()
+{
+    difference() {
+        cylinder(d=8, h=0.4, $fn=60);
+        translate([0, 0, -0.1]) cylinder(d=6.5, h=0.4+0.2, $fn=60);
+    }
+}
+
 module rod_end_shim() {
-	for (x = [0:3]){
-		for (y = [0:3]) {
-			translate([x*12, y*12, 0])
-			difference() {
-				cylinder(d=8, h=0.4, $fn=60);
-				cylinder(d=6.5, h=0.4, $fn=60);
-			}
-		}
+	for (a = [0:16]){
+		rotate([0,0, 360/16 * a]) translate([24, 0, 0])
+            rod_end_shim_unit();            
 	}
 }
+
+rod_end_shim();
