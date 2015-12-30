@@ -23,13 +23,13 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
-use <Geeetech/rostock_g2_jhead_x1.scad>
-use <Geeetech/rostock_g2_jhead_x2.scad>
+use <Geeetech/jhead_peek.scad>
 use <Geeetech/rostock_g2_spider.scad>
 use <E3D/v6_lite.scad>
 use <mini_height_sensor.scad>
 
-module e3d_v6_lock(spread = 30, tolerance = 0.1, duplex = false)
+// groove = 4.75 for J-Head, 6.0 for E3D v5/v6 mount
+module universal_lock(spread = 30, groove = 4.75, tolerance = 0.1, duplex = false)
 {
     translate([0, 0, 10]) rotate([180, 0, 0]) difference() {
         union() {
@@ -44,7 +44,7 @@ module e3d_v6_lock(spread = 30, tolerance = 0.1, duplex = false)
         } else {
             translate([0, 0, -0.1]) cylinder(d=12+tolerance*2, h=10, $fn=180);
         }
-        translate([0, 0, 6-tolerance]) {
+        translate([0, 0, groove-tolerance]) {
             if (duplex) {
                 translate([-spread/2, 0, -0.1]) cylinder(d=16+tolerance*2, h=10, $fn=180);
                 translate([spread/2, 0, -0.1]) cylinder(d=16+tolerance*2, h=10, $fn=180);
@@ -59,15 +59,25 @@ module e3d_v6_lock(spread = 30, tolerance = 0.1, duplex = false)
 
 module e3d_v6_lock_x1(tolerance = 0.1)
 {
-    e3d_v6_lock(duplex = false, tolerance = tolerance);
+    universal_lock(groove = 6, duplex = false, tolerance = tolerance);
 }
 
 module e3d_v6_lock_x2(tolerance = 0.1)
 {
-    e3d_v6_lock(duplex = true, tolerance = tolerance);
+    universal_lock(groove = 6, duplex = true, tolerance = tolerance);
 }
 
-module e3d_v6_spider(spread = 30, tolerance = 0.1)
+module jhead_lock_x1(tolerance = 0.1)
+{
+    universal_lock(groove = 4.75, duplex = false, tolerance = tolerance);
+}
+
+module jhead_lock_x2(tolerance = 0.1)
+{
+    universal_lock(groove = 4.75, duplex = true, tolerance = tolerance);
+}
+
+module universal_spider(spread = 30, tolerance = 0.1)
 {
      difference() {
         geeetech_rostock_g2_spider(height = 6, zprobe = false, hole = false);
@@ -75,7 +85,7 @@ module e3d_v6_spider(spread = 30, tolerance = 0.1)
             translate([-spread/2, 0, -0.1]) cylinder(d=16+tolerance*2, h=10, $fn=180);
             translate([spread/2, 0, -0.1]) cylinder(d=16+tolerance*2, h=10, $fn=180);
         }
-        translate([0, 0, 3-tolerance]) e3d_v6_lock(spread=spread, tolerance = -tolerance);
+        translate([0, 0, 3-tolerance]) universal_lock(spread=spread, tolerance = -tolerance);
     }
     if ($children == 1) {
         translate([0, 0, 3]) children(0);
@@ -86,20 +96,20 @@ module e3d_v6_spider(spread = 30, tolerance = 0.1)
 
 } 
 
-// Debug - 1x Mode
+// Debug - E3D 1x Mode
  * union() {
-     % e3d_v6_spider() {
+     % universal_spider() {
         # union() {
             e3d_v6_lite();
             translate([0, 0, -7]) rotate([-90, 0, 90]) import("E3D/V6.6_Duct.stl", convexity=4);
         }
     }
-   % translate([0, 0, 3]) e3d_v6_lock(duplex = false);
+   % translate([0, 0, 3]) e3d_v6_lock_x1();
 }
 
-// Debug - 2x Mode
+// Debug - E3D 2x Mode
  * union() {
-      % e3d_v6_spider() {
+      % universal_spider() {
         # union() {
             e3d_v6_lite();
             translate([0, 0, -7]) rotate([-90, 0, 90]) import("E3D/V6.6_Duct.stl", convexity=4);
@@ -109,14 +119,37 @@ module e3d_v6_spider(spread = 30, tolerance = 0.1)
             translate([0, 0, -7]) rotate([-90, 0, 90]) import("E3D/V6.6_Duct.stl", convexity=4);
         }
     }
-    % translate([0, 0, 3]) e3d_v6_lock(duplex = true);
+    % translate([0, 0, 3]) e3d_v6_lock_x2();
+}
+
+// Debug - J-Head 1x Mode
+ * union() {
+     % universal_spider() {
+        # geeetech_jhead_peek();
+    }
+   % translate([0, 0, 3]) jhead_lock_x1();
+}
+
+// Debug - J-Head 2x Mode
+ * union() {
+      % universal_spider() {
+            # geeetech_jhead_peek();
+            # geeetech_jhead_peek();
+      }
+    % translate([0, 0, 3]) jhead_lock_x2();
 }
 
 // Plated
-rotate([180, 0, 0]) {
-    rotate([180, 0, 0]) e3d_v6_spider();
-    rotate([0, 0, -60]) translate([0, 50, -10]) e3d_v6_lock_x1();
-    rotate([0, 0, 60]) translate([0, 50, -10]) e3d_v6_lock_x2();
+module universal_spider_plate()
+{
+    rotate([180, 0, 0]) {
+        rotate([180, 0, 0]) universal_spider();
+        rotate([0, 0, -60]) translate([0, 50, -10]) e3d_v6_lock_x1();
+        rotate([0, 0, 60]) translate([0, 50, -10]) e3d_v6_lock_x2();
+        rotate([0, 0, -60]) translate([0, -50, -10]) jhead_lock_x1();
+        rotate([0, 0, 60]) translate([0, -50, -10]) jhead_lock_x2();
+    }
 }
-        
+
+universal_spider_plate(); 
 // vim: set shiftwidth=4 expandtab: //
