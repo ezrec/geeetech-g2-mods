@@ -25,10 +25,10 @@
 
 use <utility.scad>
 
-module geeetech_rostock_g2_spider_leg()
+module geeetech_rostock_g2_spider_leg(height=8)
 {
   translate([14, 17, 0]) {
-    cube([9, 13, 8]);
+    cube([9, 13, height]);
     cube([9, 17, 3]);
   }
   translate([14, 34, 6])
@@ -41,10 +41,10 @@ module geeetech_rostock_g2_spider_leg()
     }
 }
 
-module geeetech_rostock_g2_spider_bracket()
+module geeetech_rostock_g2_spider_bracket(height=8)
 {
-    geeetech_rostock_g2_spider_leg();
-    mirror([1, 0, 0]) geeetech_rostock_g2_spider_leg();
+    geeetech_rostock_g2_spider_leg(height=height);
+    mirror([1, 0, 0]) geeetech_rostock_g2_spider_leg(height=height);
 }
 
 
@@ -56,30 +56,34 @@ module geeetech_rostock_g2_spider_zprobe()
         cube([12, 10, 19.2]);
 }
 
-module geeetech_rostock_g2_spider_blank(zprobe = true, hole = false)
+module geeetech_rostock_g2_spider_blank(height = 8, zprobe = true, hole = false)
 {
     difference() {
         union() {
-            utility_torus_mitred_top(id=40.125, od=60, height=8, radius=1.5, hole=hole);
+            utility_torus_mitred_top(id=40.125, od=50, height=height, radius=1.5, hole=hole, $fn=180);
+            rotate([0, 0, 15]) difference() {
+                cylinder(d=60, h=height, $fn=12);
+                translate([0, 0, -0.1]) cylinder(d=45, h=height+0.2);
+            } 
 
             for (i = [0:2]) {
-                rotate([0, 0, i*120]) geeetech_rostock_g2_spider_bracket();
+                rotate([0, 0, i*120]) geeetech_rostock_g2_spider_bracket(height=height);
             }
 
             if (zprobe)
-                geeetech_rostock_g2_spider_zprobe();
+                geeetech_rostock_g2_spider_zprobe(height = height);
         }
                 // Z-probe drills
         if (zprobe) {
            translate([-4.7, 30.1, 5.5])
                 rotate([90, 0, 0])
-                    cylinder(d=3-0.2, h=8.2, $fn=12);
+                    cylinder(d=3-0.2, h=height+0.2, $fn=12);
            translate([4.7, 30.1, 5.5])
                 rotate([90, 0, 0])
-                    cylinder(d=3-0.2, h=8.2, $fn=12);
+                    cylinder(d=3-0.2, h=height+0.2, $fn=12);
             translate([0, 23.5, -0.1])
                 cylinder(d=3+0.5, h=20, $fn=12);
-            translate([-1.5, 24, 8])
+            translate([-1.5, 24, height])
                 cube([3, 8, 18]);
             translate([0, 22-0.5, 17])
                 rotate([0, 0, 15]) cube([8, 3, 3]);
@@ -87,33 +91,37 @@ module geeetech_rostock_g2_spider_blank(zprobe = true, hole = false)
     }
 }
 
-module geeetech_rostock_g2_spider(zprobe = true, hole = true)
+module geeetech_rostock_g2_spider_drill(height = 8, zprobe = false)
 {
-    difference() {
-        geeetech_rostock_g2_spider_blank(zprobe=zprobe, hole=hole);
-
-        // Drills for Geetech J-Head and fan mounts
-        for (i = [(zprobe ? 1 : 0):5]) {
-            rotate([0, 0, i*60]) translate([0, 25, -0.1])
-                cylinder(d=4.25, h=10, $fn=24);
-        }
+    // Drills for Geetech J-Head and fan mounts
+    for (i = [(zprobe ? 1 : 0):5]) {
+        rotate([0, 0, i*60]) translate([0, 25, -0.1])
+            cylinder(d=4.25, h=height + 0.2, $fn=24);
     }
 }
 
+module geeetech_rostock_g2_spider(height = 8, zprobe = true, hole = true)
+{
+    difference() {
+        geeetech_rostock_g2_spider_blank(height = height, zprobe=zprobe, hole=hole);
+        geeetech_rostock_g2_spider_drill(height = height, zprobe=zprobe);
+    }
+}
+
+module geeetech_rostock_g2_spider_no_probe(height=8)
+{
+    geeetech_rostock_g2_spider(height = height, zprobe=false);
+}
+
+module geeetech_rostock_g2_spider_z_probe(height = 8)
+{
+    geeetech_rostock_g2_spider(height = height, zprobe=true);
+}
+
 // Debug interference model:
-if (false) {
-    # translate([-46.125, -40+0.125, 0])
+union() {
+    % translate([-46.125, -40+0.125, 0])
             import("RKMA-B02-platform.STL", convexity=5);
-    geeetech_rostock_g2_spider(zprobe=true);
-}
-
-module geeetech_rostock_g2_spider_no_probe()
-{
-    geeetech_rostock_g2_spider(zprobe=false);
-}
-
-module geeetech_rostock_g2_spider_z_probe()
-{
     geeetech_rostock_g2_spider(zprobe=true);
 }
 
