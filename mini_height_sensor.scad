@@ -43,6 +43,7 @@ module mini_height_sensor_drill(post=4)
         translate([2.7, 0.1, 14.92]) rotate([90, 0, 0]) cylinder(d=2.5, h=post+0.2, $fn=24);
         translate([21.11, 0.1, 14.92]) rotate([90, 0, 0]) cylinder(d=2.5, h=post+0.2, $fn=24);
     }
+    rotate([90, 0, 0]) cylinder(d=17, h=post+0.2, $fn=24);
 }
 
 // Origin is bottom middle of the sensor itself

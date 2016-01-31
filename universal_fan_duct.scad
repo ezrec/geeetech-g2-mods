@@ -29,7 +29,6 @@ use <Geeetech/rostock_g2_spider.scad>
 use <Geeetech/rostock_g2_jhead_x2.scad>
 use <E3D/v6_lite.scad>
 use <blower_40mm.scad>
-use <mini_height_sensor.scad>
 
 // Optimize part for quickest printing - use an integer multiple of the printer's nozzle size
 machine_nozzle = 0.3;   // Your part printing machine's nozzle width
@@ -174,19 +173,16 @@ module universal_fan_duct()
         scale_from = (duct_height-slice)/duct_height;
         scale_to = slice/duct_height;
         rotate([0, 0, duct_twist*scale_to]) translate([30*scale_from+duct_gap*scale_to, -neck_width/2*scale_from + -head_gap/2*scale_to, 30-slice-duct_slice])
-            linear_extrude(height=duct_slice) universal_fan_duct_slice(size=[neck_size[0]*scale_from+neck_width/2*scale_to, neck_size[1]*scale_from + head_gap*scale_to]);
+            linear_extrude(height=duct_slice) universal_fan_duct_slice(size=[neck_size[0]*scale_from+neck_width*scale_to, neck_size[1]*scale_from + head_gap*scale_to]);
     }
     
     
     rotate([0, 0, duct_twist]) translate([duct_gap, -head_gap/2, 30-duct_z])
-        linear_extrude(height=probe_mount[2]) universal_fan_duct_slice(size=[neck_width/2, head_gap], guides=true);
+        linear_extrude(height=probe_mount[2]) universal_fan_duct_slice(size=[neck_width, head_gap], guides=true);
 
     // Exit ducting & fan mount
     rotate([0, 0, duct_twist]) translate([duct_gap, -head_gap/2, 30-(duct_z + 4)])  {
-                // Z-Probe mount
-                translate([neck_width/2, head_gap/2, -1]) rotate([0, 0, 90]) mini_height_sensor_mount(post_length=neck_width/2);
-        
-                universal_fan_duct_outlet(size=[neck_width/2, head_gap, 4]);
+                universal_fan_duct_outlet(size=[neck_width, head_gap, 4]);
     }
 }
 
@@ -210,4 +206,4 @@ module universal_fan_duct()
 // 37 = Geeetech j-heads
 // 47 = E3D heads
 
-! rotate([0, 0, 60]) translate([0, 0, -47]) universal_fan_duct();
+rotate([0, 0, 60]) translate([0, 0, -47]) universal_fan_duct();
