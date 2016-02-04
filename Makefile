@@ -7,6 +7,7 @@ SCAD := \
 	Geeetech/rostock_g2_spider.scad \
 	Geeetech/rostock_g2_jhead_x1.scad \
 	Geeetech/rostock_g2_jhead_x2.scad \
+	Geeetech/rostock_pro_spider.scad \
 	mk8_extruder_guide.scad \
 	rod_end_shim.scad \
 	universal_spider.scad \
@@ -23,6 +24,7 @@ MODELS := \
 	geeetech_rostock_g2_jhead_x1_lower.stl \
 	geeetech_rostock_g2_jhead_x2_upper.stl \
 	geeetech_rostock_g2_jhead_x2_lower.stl \
+	geeetech_rostock_pro_spider.stl \
 	mk8_extruder_guide.stl \
 	rod_end_shim.stl \
 	universal_spider_plate.stl \
