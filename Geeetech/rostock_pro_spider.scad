@@ -27,7 +27,7 @@
 pro_spider_holder = 6; // mm
 pro_spider_drill = 4; // mm
 
-module geetech_rostock_pro_spider_blank_holder(height)
+module geeetech_rostock_pro_spider_blank_holder(height)
 {
     difference() {
         translate([14, 15, 0]) cube([11, 28, height]);
@@ -36,7 +36,7 @@ module geetech_rostock_pro_spider_blank_holder(height)
     }
 }
 
-module geetech_rostock_pro_spider_blank(height = 10)
+module geeetech_rostock_pro_spider_blank(height = 10)
 {
    difference() {
        cylinder(r=60/sqrt(3), h=height, $fn=6);
@@ -44,24 +44,24 @@ module geetech_rostock_pro_spider_blank(height = 10)
    }
    for (i = [0:3]) {
        rotate([0, 0, 120 * i]) {
-            geetech_rostock_pro_spider_blank_holder(height=height);
-            mirror([1, 0, 0]) geetech_rostock_pro_spider_blank_holder(height=height);
+            geeetech_rostock_pro_spider_blank_holder(height=height);
+            mirror([1, 0, 0]) geeetech_rostock_pro_spider_blank_holder(height=height);
        }
    }
 }
 
-module geetech_rostock_pro_spider_drill(height = 10.5)
+module geeetech_rostock_pro_spider_drill(height = 10.5)
 {
     for (i = [0:6]) {
         rotate([0, 0, 60 * i]) translate([0, 25, -0.1]) cylinder(d=pro_spider_drill+0.2, h=height+0.2, $fn=36);
     }
 }
 
-module geetech_rostock_pro_spider()
+module geeetech_rostock_pro_spider()
 {
     difference() {
-        geetech_rostock_pro_spider_blank();
-        geetech_rostock_pro_spider_drill();
+        geeetech_rostock_pro_spider_blank();
+        geeetech_rostock_pro_spider_drill();
     }
 }
 
@@ -70,6 +70,6 @@ if (0) {
     # scale([pscale, pscale, pscale]) translate([0, 4.25, -0.985]) rotate([-90, 0, 180]) import("PRO_SPIDER.stl");
 }
 
-geetech_rostock_pro_spider();
+geeetech_rostock_pro_spider();
 
 // vim: set shiftwidth=4 expandtab: //
