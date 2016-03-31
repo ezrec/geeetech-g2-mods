@@ -27,15 +27,22 @@ use <Geeetech/jhead_peek.scad>
 use <Geeetech/rostock_g2_spider.scad>
 use <E3D/v6_lite.scad>
 use <mini_height_sensor.scad>
+use <evillabs.scad>
+
+spider_height = 6;
 
 // groove = 4.75 for J-Head, 6.0 for E3D v5/v6 mount
-module universal_lock(spread = 30, groove = 4.75, tolerance = 0.1, duplex = false)
+module universal_lock(spread = 30, groove = 5, tolerance = 0.1, duplex = false, label = "5mm")
 {
     translate([0, 0, 10]) rotate([180, 0, 0]) difference() {
         union() {
             hull() {
                 translate([-spread/2, 0, 0]) cylinder(d=18-tolerance*2, h=10, $fn=180);
                 translate([spread/2, 0, 0]) cylinder(d=18-tolerance*2, h=10, $fn=180);
+            }
+            hull() {
+                    translate([0, -25, 3 + tolerance]) cylinder(r = 5, h = 10 - 3 - tolerance, $fn = 60);
+                    translate([0, 25, 3 + tolerance]) cylinder(r = 5, h = 10 - 3 - tolerance, $fn = 60);
             }
         }
         if (duplex) {
@@ -54,27 +61,33 @@ module universal_lock(spread = 30, groove = 4.75, tolerance = 0.1, duplex = fals
         }
         translate([-spread/2-18-tolerance*4, -tolerance*2, -0.1]) 
             cube([spread+18*2+tolerance*5, tolerance*4, 10.2]);
+        translate([0, -25, 3-0.1]) cylinder(d = 4, h = 10 - 3 + tolerance + 0.2, $fn = 30);
+        translate([0, 25, 3-0.1]) cylinder(d = 4, h = 10 - 3 + tolerance + 0.2, $fn = 30);
+        translate([4, 10, 5]) rotate([90, 0, 90]) linear_extrude(height=1.1) text(text = label, valign = "bottom", size = 3);
+         rotate([0, 0, 180]) translate([4, 10, 5]) rotate([90, 0, 90]) linear_extrude(height=1.1) text(text = label, valign = "bottom", size = 3);
+         translate([-5.1, 20, 6.5]) rotate([90, 0, 90]) linear_extrude(height=1.1) scale([5, 5]) evillabs_logo();
+        rotate([0, 0, 180]) translate([-5.1, 20, 6.5]) rotate([90, 0, 90]) linear_extrude(height=1.1) scale([5, 5]) evillabs_logo();
     }
 }
 
 module e3d_v6_lock_x1(tolerance = 0.1)
 {
-    universal_lock(groove = 6, duplex = false, tolerance = tolerance);
+    universal_lock(groove = 6, duplex = false, label = "6mm", tolerance = tolerance);
 }
 
 module e3d_v6_lock_x2(tolerance = 0.1)
 {
-    universal_lock(groove = 6, duplex = true, tolerance = tolerance);
+    universal_lock(groove = 6, duplex = true, label = "6mm", tolerance = tolerance);
 }
 
 module jhead_lock_x1(tolerance = 0.1)
 {
-    universal_lock(groove = 4.75, duplex = false, tolerance = tolerance);
+    universal_lock(groove = 4.75, duplex = false, label = "4.75mm", tolerance = tolerance);
 }
 
 module jhead_lock_x2(tolerance = 0.1)
 {
-    universal_lock(groove = 4.75, duplex = true, tolerance = tolerance);
+    universal_lock(groove = 4.75, duplex = true, label = "4.75mm", tolerance = tolerance);
 }
 
 module universal_spider(spread = 30, tolerance = 0.1)
@@ -144,12 +157,12 @@ module universal_spider_plate()
 {
     rotate([180, 0, 0]) {
         rotate([180, 0, 0]) universal_spider();
-        rotate([0, 0, -60]) translate([0, 50, -10]) e3d_v6_lock_x1();
-        rotate([0, 0, 60]) translate([0, 50, -10]) e3d_v6_lock_x2();
-        rotate([0, 0, -60]) translate([0, -50, -10]) jhead_lock_x1();
-        rotate([0, 0, 60]) translate([0, -50, -10]) jhead_lock_x2();
+        rotate([0, 0, -60]) translate([0, 60, -10]) e3d_v6_lock_x1();
+        rotate([0, 0, 60]) translate([0, 60, -10]) e3d_v6_lock_x2();
+        rotate([0, 0, -60]) translate([0, -60, -10]) jhead_lock_x1();
+        rotate([0, 0, 60]) translate([0, -60, -10]) jhead_lock_x2();
     }
 }
-
+! rotate([0, 180, 0]) e3d_v6_lock_x1();
 universal_spider_plate(); 
 // vim: set shiftwidth=4 expandtab: //

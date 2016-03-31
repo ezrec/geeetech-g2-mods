@@ -10,10 +10,9 @@ SCAD := \
 	Geeetech/rostock_pro_spider.scad \
 	mk8_extruder_guide.scad \
 	rod_end_shim.scad \
-	universal_spider.scad \
-	e3d_v6_probe.scad \
-	e3d_v6_fan_duct.scad \
 	e3d_chimera_spider.scad \
+	universal_spider.scad \
+	universal_probe.scad \
 	universal_fan_duct.scad
 
 MODELS := \
@@ -27,17 +26,25 @@ MODELS := \
 	geeetech_rostock_pro_spider.stl \
 	mk8_extruder_guide.stl \
 	rod_end_shim.stl \
-	universal_spider_plate.stl \
-	universal_spider.stl \
 	e3d_v6_lock_x1.stl \
 	e3d_v6_lock_x2.stl \
 	jhead_lock_x1.stl \
 	jhead_lock_x2.stl \
-	e3d_v6_probe.stl \
-	e3d_v6_fan_duct.stl \
 	e3d_chimera_spider_no_probe.stl \
 	e3d_chimera_spider_z_probe.stl \
-	universal_fan_duct.stl
+	universal_spider.stl \
+	universal_spider_plate.stl \
+	universal_probe.stl \
+	universal_fan_duct_blower_adapter.stl \
+	universal_fan_duct_foot_single.stl \
+	universal_fan_duct_foot_g2s.stl \
+	universal_fan_duct_foot_g2s_pro.stl \
+	universal_fan_duct_foot_e3d_x2.stl \
+	universal_fan_duct_clip.stl \
+	universal_fan_duct_pipe.stl \
+	universal_fan_duct_pipe_connector.stl \
+	universal_fan_duct_22mm_connector.stl
+
 
 
 all: $(MODELS:%=stl/%)
