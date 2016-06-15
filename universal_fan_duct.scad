@@ -55,6 +55,9 @@ blower_shift_extra = 10;
 
 neck_height = 35;
 
+// Slope of the foot
+foot_slope = 10;
+
 tolerance = 0.15;
 
 // Calculated parameters
@@ -104,57 +107,47 @@ module universal_fan_duct_blower_adapter(size = blower_out)
     }
 }
 
-module universal_fan_duct_outlet(ro=15, gap = 4, ri=8, height = 4, carve = false)
+module universal_fan_duct_outflow(height = height, head_gap = head_gap, slope = foot_slope, carve = false)
 {
-    rotate_extrude(convexity=4) {
-        translate([ri, 0]) {
-            if (!carve) {
-                square([ro-ri, height]);
-            } else {
-                polygon([[wall_width, -0.1], [wall_width+gap, -0.1], 
-                         [ro-ri-gap, height*0.3], 
-                         [ro-ri-gap, height-wall_width], 
-                         [wall_width, height-wall_width]]);
-            }
-        }
-    }
-}
-
-module universal_fan_duct_outflow(height = height, ring_height = ring_height, head_gap = head_gap, carve = false)
-{
-    ri = 7;
-    gap = sqrt(2 * blower_volume/PI - ri*ri) - ri;
-    ro = ri + gap + wall_width*4;
-    cut = ro * 2;
+    airgap = 10;
     
     angle = atan(head_gap / 2 / (probe_mount + out_depth));
-    vent_len = (probe_mount + out_depth) / cos(angle);
-    vent_width = out_depth*sqrt(3) + wall_width*2;
+    vent_len = (probe_mount + out_depth - airgap) / cos(angle) / cos(slope);
+    vent_width = out_depth*(head_gap > 0 ? 1.5 : 2) + wall_width*2;
+    vent_height = blower_volume / (out_depth*sqrt(3));
 
-    difference() {
-        rotate([0, 0, -angle]) {
-            // Exit ducting & fan mount
-            
-            // Connector to nozzle
-            translate([ri+wall_width, -vent_width/2, 0]) {
-                if (!carve) {
-                  cube([vent_len - ri - wall_width, vent_width, ring_height]);
-                } else {
-                  translate([-0.1, wall_width, wall_width])
-                        cube([vent_len - ri + 0.2, (vent_width-3*wall_width)/2, ring_height - wall_width*2]);
-                  translate([-0.1, wall_width + (vent_width-2*wall_width + wall_width)/2, wall_width])
-                        cube([vent_len - ri + 0.2, (vent_width-3*wall_width)/2, ring_height - wall_width*2]);
-               }
-            }
-              
-            universal_fan_duct_outlet(ro = ro, gap = gap, ri = ri, height = ring_height, carve = carve);
-        }
-        rotate([0, -20, 0]) if (!carve) {
-            translate([-ro, -cut/2, wall_width - 0.1]) cube([ro*PI, cut, ring_height*2 + 0.2]);
-        } else {
-            translate([-ro, -(cut+2)/2, -0.1]) cube([ro*3, cut + 2, ring_height*2 + 0.2]);
-        }
+    translate([airgap, 0, 0]) {
+	    difference() {
+		rotate([0, 0, -angle]) {
+	 
+		    
+		    // Connector to nozzle
+		    translate([0, -vent_width/2, 0]) {
+			if (!carve) {
+			  cube([vent_len, vent_width, vent_height]);
+			} else {
+			  translate([-0.1, wall_width, wall_width])
+				cube([vent_len + 0.2, (vent_width-3*wall_width)/2, vent_height - wall_width*2]);
+			  translate([-0.1, wall_width + (vent_width-2*wall_width + wall_width)/2, wall_width])
+				cube([vent_len + 0.2, (vent_width-3*wall_width)/2, vent_height - wall_width*2]);
+		       }
+		    }
+		}
+		
+		rotate([0, -15, -angle]) if (!carve) {
+		    translate([0, -vent_width/2 - wall_width, wall_width*4 - 0.1]) cube([vent_len*2, vent_width + wall_width*2, vent_height*2 + 0.2]);
+		} else {
+		    translate([0, -vent_width/2 - wall_width - 0.1, wall_width*3 -0.1]) cube([vent_len*2, vent_width + wall_width*2 + 0.2, vent_height*2 + 0.2]);
+		}
+	    }
+	    
+	     // Exit ducting & fan mount
+	     if (carve)
+		rotate([0, 0, -angle]) translate([-wall_width*4, -vent_width/2 - 0.1, 0])
+		     rotate([0, -50, 0]) translate([0, 0, -wall_width*8])
+		     cube([wall_width*5, vent_width + 0.2, vent_height]);
     }
+	    
 }
 
 module universal_fan_duct_pipe_fab(height = height, carve = false)
@@ -183,7 +176,6 @@ module universal_fan_duct_pipe_connector_fab(height = 10, carve = false, bottom 
     } else {
         if (bottom) {
            translate([0, 0, wall_width]) rotate([0, 0, 30]) {
-                cylinder(r = blower_ro + joint_tolerance, h = height/2 - wall_width * 1.5, $fn = 6);
                 cylinder(r = blower_ro - wall_width, h = height + 0.1, $fn = 6);
             }
             translate([0, 0, height/2 + wall_width*1.5]) rotate([0, 0, 30])
@@ -206,46 +198,58 @@ module universal_fan_duct_pipe_connector(height = 10)
     }
 }
 
-universal_fan_duct_pipe_connector();
-
-module universal_fan_duct_foot_fab(height = height, ring_height = ring_height, head_gap = head_gap, carve = false)
+module universal_fan_duct_foot_fab(height = height, slope = foot_slope, head_gap = head_gap, carve = false)
 {
-  translate([probe_mount + out_depth + wall_width, 0, 0]) 
-        universal_fan_duct_pipe_connector_fab(height = 10 + ring_height, carve = carve, bottom = true);
-  translate([0, head_gap/2, 0]) universal_fan_duct_outflow(height = height, ring_height = ring_height, head_gap = head_gap, carve = carve);
+    blower_ro = (out_depth + wall_width) * 2/sqrt(3);
+    
+    translate([(probe_mount + out_depth + wall_width)/cos(slope), 0, 0])
+    difference() {
+        translate([0, 0, -sin(slope)*out_depth])
+       rotate([0, slope, 0])
+            universal_fan_duct_pipe_connector_fab(height = 10 + ring_height, bottom = true, carve = carve);
+        if (!carve) {
+            translate([-blower_ro*cos(slope), -blower_ro*cos(slope), -2*sin(slope)*blower_ro]) cube([2*blower_ro*cos(slope), 2*blower_ro*cos(slope), 2*blower_ro*sin(slope)]);
+        } else {
+            translate([-blower_ro*cos(slope), -blower_ro*cos(slope), 0]) cube([2*blower_ro*cos(slope), 2*blower_ro*cos(slope), wall_width]);
+        }
+            
+    }
+  translate([0, head_gap/2, 0]) universal_fan_duct_outflow(height = height, slope = slope, head_gap = head_gap, carve = carve);
   if (head_gap > 0)
       mirror([0, 1, 0]) 
-        translate([0, head_gap/2, 0]) universal_fan_duct_outflow(height = height, ring_height = ring_height, head_gap = head_gap, carve = carve);
+        translate([0, head_gap/2, 0]) universal_fan_duct_outflow(height = height, slope = slope, head_gap = head_gap, carve = carve);
 }
 
-module universal_fan_duct_foot(height = 80, ring_height = ring_height, bed_clearance = bed_clearance, head_gap = head_gap)
+module universal_fan_duct_foot(height = 80, bed_clearance = bed_clearance, head_gap = head_gap, slope = foot_slope)
 {
     difference() {
-        universal_fan_duct_foot_fab(height = height, ring_height = ring_height, head_gap = head_gap, carve = false);
-        universal_fan_duct_foot_fab(height = height, ring_height = ring_height, head_gap = head_gap, carve = true);
+        universal_fan_duct_foot_fab(height = height, slope = slope, head_gap = head_gap, carve = false);
+        universal_fan_duct_foot_fab(height = height, slope = slope, head_gap = head_gap, carve = true);
         // Uncomment to debug cross section of duct
         // translate([-10, -wall_width, -0.1]) cube([100, 100, 100]);
     }
 }
 
-module universal_fan_duct_foot_single()
+module universal_fan_duct_foot_single(slope = foot_slope)
 {
-	universal_fan_duct_foot(head_gap = 0);
+	universal_fan_duct_foot(head_gap = 0, slope = slope);
 }
 
-module universal_fan_duct_foot_g2s()
+universal_fan_duct_foot_single();
+
+module universal_fan_duct_foot_g2s(slope = foot_slope)
 {
-	universal_fan_duct_foot(head_gap = 20);
+	universal_fan_duct_foot(head_gap = 20, slope = slope);
 }
 
-module universal_fan_duct_foot_g2s_pro()
+module universal_fan_duct_foot_g2s_pro(slope = foot_slope)
 {
-	universal_fan_duct_foot(head_gap = 26);
+	universal_fan_duct_foot(head_gap = 26, slope = slope);
 }
 
-module universal_fan_duct_foot_e3d_x2()
+module universal_fan_duct_foot_e3d_x2(slope = foot_slope)
 {
-	universal_fan_duct_foot(head_gap = 30);
+	universal_fan_duct_foot(head_gap = 30, slope = slope);
 }
 
 module universal_fan_duct_tubing_connector(tubing_id)

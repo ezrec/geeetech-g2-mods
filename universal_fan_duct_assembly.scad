@@ -42,8 +42,8 @@ module universal_fan_duct_assembly_x2() {
     }
     * rotate([0, 0, -90]) universal_probe(bed_clearance = 1, post_clearance = 5);
     translate([0, 0, -48 - bed_clearance]) {
-            universal_fan_duct_foot(head_gap = 30);
-            translate([probe_mount + out_depth + wall_width, 0, 10/2 + wall_width/2])
+            rotate([0, -foot_slope, 0]) universal_fan_duct_foot(head_gap = 30);
+            translate([probe_mount + out_depth + wall_width, 0, 10 + wall_width/2])
                 universal_fan_duct_pipe();
       }
     translate([0, 0, 6]) universal_fan_duct_clip();
@@ -55,8 +55,8 @@ module universal_fan_duct_assembly_x1() {
             rotate([0, 0, 90]) e3d_v6_lite();
     }
     translate([0, 0, -48 - bed_clearance]) {
-            universal_fan_duct_foot(head_gap = 0);
-            translate([probe_mount + out_depth + wall_width, 0, 10/2 + wall_width/2])
+            rotate([0, -foot_slope, 0]) universal_fan_duct_foot(head_gap = 0);
+            translate([probe_mount + out_depth + wall_width, 0, 10 + wall_width/2])
                 universal_fan_duct_pipe();
     }
     translate([0, 0, 6]) universal_fan_duct_clip();
