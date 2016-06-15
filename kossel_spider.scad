@@ -65,7 +65,7 @@ hotend_model=0; // [0:E3D v6,1:J-Head,2:Custom Groovemount]
 hotend_wall = 2; // [1:5]
 
 // Hotend bulk diameter
-custom_hotend_diameter = 10;
+custom_hotend_diameter = 20;
 custom_hotend_height = 30;
 custom_hotend_groove_diameter = 12;
 custom_hotend_groove_height = 3;
@@ -124,7 +124,7 @@ hotend_lock_radius   = e3dv6_hotend_diameter/2+hotend_wall;
 hotend_lock_distance = e3dv6_hotend_diameter+hotend_wall;
 
 /* [Fan Dimensions] */
-fan_diameter = 29; // [10:40]
+fan_width = 30; // [10:40]
 
 /* [ Global ] */
 
@@ -141,7 +141,7 @@ hole_tolerance = 0.125 / scaler;
 // Faces for cylinders
 fn = 60; // [6:60]
 
-fan_radius = fan_diameter/2;
+fan_radius = fan_width/2-hotend_wall;
 
 // WhosaWhatsis Hull Chain
 module hull_chain()
@@ -172,6 +172,29 @@ module measure(distance = 5, unit = "n")
     text(str(distance,unit), halign = "center", valign = "bottom", size = text_height);
 }
 
+module hotend_cut(tolerance = lock_tolerance)
+{
+    rotate_extrude(angle = 360, $fn = fn) {
+        intersection() {
+            offset(delta = tolerance, chamfer = true) {
+                /* Build radius profile of hotend from bottom up */
+                
+                /* Body */
+                square([hotend_radius, hotend_height-hotend_shoulder_height]);
+                translate([0, hotend_height-hotend_shoulder_height]) {
+                    square([hotend_shoulder_diameter/2, hotend_shoulder_height]);
+                    translate([0, hotend_shoulder_height]) {
+                        square([hotend_groove_diameter/2, hotend_groove_height]);
+                        translate([0, hotend_groove_height])
+                            square([hotend_inlet_diameter/2, hotend_wall*2]);
+                    }
+                }
+            }
+            translate([0, -1]) square([100, 100]);
+        }
+    }
+}
+
 module twist_lock_base(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock_height, height = hotend_height, wall = hotend_wall, brim = hotend_lock_brim, lock_tolerance = lock_tolerance)
 {
     hull() {
@@ -199,8 +222,8 @@ module twist_fan_sketch(delta = 0)
         }
         if (delta >= 0) {
             width = r+wall+lock_tolerance+screw_depth;
-            translate([-width,-width])
-                square([width*2, width*2]);
+            translate([-fan_width/2,-width])
+                square([fan_width, width]);
         }
     }
 }
@@ -211,13 +234,13 @@ module twist_fan_x1(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock
     {
         union() {
             translate([0, 0, h + wall*2 + lock_tolerance])
-                linear_extrude(height = height - h + hotend_groove_height)
+                linear_extrude(height = height - h + hotend_groove_height + lock_tolerance)
                     twist_fan_sketch(delta = 0);
         }
         
         // Interior cut
         translate([0, 0, -0.1])
-            linear_extrude(height =  height-wall + h + hotend_groove_height+lock_tolerance + 0.1)
+            linear_extrude(height =  height-wall + h + hotend_groove_height+lock_tolerance*2 + 0.1)
                 twist_fan_sketch(delta = - wall);
         
         // Top cut
@@ -230,7 +253,6 @@ module twist_fan_x1(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock
 
         // Fan cut
         twist_lock_cut();
-        for (a = [0:180:180]) rotate([0, 0, a])
         translate([0, -r-wall-screw_depth-lock_tolerance, h + wall*2 + lock_tolerance + height/2]) {
             //rotate([-90, 0, 0]) cylinder(r = fan_radius, h = r*2 + wall*2 + screw_depth+lock_tolerance*2, $fn = fn);
         
@@ -254,17 +276,7 @@ module twist_fan_x1(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock
 module twist_lock_cut(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock_height, height = hotend_height, wall = hotend_wall, brim = hotend_lock_brim, lock_tolerance = lock_tolerance)
 {
     // Hotend bulk cut
-    translate([0, 0, -0.1]) {
-        cylinder(r  = r + lock_tolerance, h = height - hotend_shoulder_height + lock_tolerance + 0.1, $fn = fn);
-        cylinder(r = hotend_shoulder_diameter/2 + lock_tolerance,
-                 h = height + lock_tolerance + 0.1, $fn = fn);
-    }
-            
-    // Hotend groove mount cut
-    translate([0, 0, height - lock_tolerance])
-        cylinder(d = hotend_groove_diameter + lock_tolerance*4,
-                 h = hotend_groove_height + height + lock_tolerance*2+0.1,
-                 $fn = fn);
+    hotend_cut(tolerance = lock_tolerance);
     
     // Fan cut
     hull_chain() {
@@ -272,8 +284,7 @@ module twist_lock_cut(r = hotend_radius, d = hotend_lock_distance, h = hotend_lo
                 rotate([-90, 0, 0]) cylinder(r = fan_radius, h = lock_tolerance, $fn = fn);
             translate([0, r+wall, h + wall*2 + height/2])
                 rotate([-90, 0, 0]) cylinder(r = fan_radius, h = lock_tolerance, $fn = fn);
-            translate([0, 0, wall])
-                cylinder(r = r, h = lock_tolerance, $fn = fn);
+            cylinder(r = r, h = lock_tolerance, $fn = fn);
             translate([0, -(r+wall+lock_tolerance), h + wall*2 + height/2])
                 rotate([-90, 0, 0]) cylinder(r = fan_radius, h = lock_tolerance, $fn = fn);
             translate([0, -(r+wall+lock_tolerance+screw_depth)-lock_tolerance, h + wall*2 + lock_tolerance + height/2])
@@ -299,12 +310,12 @@ module twist_lock_x2(r = hotend_radius, d = hotend_lock_distance, h = hotend_loc
 
 module twist_lock_x1(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock_height, height = hotend_height, wall = hotend_wall, brim = hotend_lock_brim, lock_tolerance = lock_tolerance)
 {
-     difference() {
-        translate([0, 0, wall]) 
-            twist_lock_base(r = r, d = d, h = h, wall = wall, brim = brim, lock_tolerance = -lock_tolerance);
-        
+    translate([0, 0, wall + lock_tolerance]) difference() {
+        twist_lock_base(r = r, d = d, h = h, wall = wall, brim = brim, lock_tolerance = -lock_tolerance);
+    
         // Hotend bulk cut
         twist_lock_cut(r = r, d = d, h = h, wall = wall, brim = brim, lock_tolerance = lock_tolerance);
+    
         
         // Slice in half
         translate([-100,-100,-100]) cube([200, 100 + lock_tolerance*2, 200]);
@@ -335,11 +346,13 @@ module kossel_effector(radius = effector_radius,
                  // Bulk of the effector
                  cylinder(r = hex_radius - holder_wall/2, h = height, $fn = fn);
                 
+                 // Locking ridge for fan cover
                  translate([0, 0, height - 0.1]) {
                     linear_extrude(height = lock_wall) difference() {
                         twist_fan_sketch(delta = lock_wall+lock_tolerance);
                         twist_fan_sketch(delta = lock_tolerance);
                         translate([-50, -50]) square([100, 50]);
+                        translate([-fan_width/2, 0]) square([fan_width, fan_width]);
                     }
                 }
                     
@@ -376,8 +389,6 @@ module kossel_effector(radius = effector_radius,
                 }
             } 
                                   
-            // Carve out internal hole
-            //round_hole(r = mount_hex / sqrt(3), h = height, centered = false, fn=60);
             // Insert twist lock
             lock_angle = 20;
             rotate([0, 0, lock_angle]) {
@@ -391,7 +402,7 @@ module kossel_effector(radius = effector_radius,
                 }
             }
             
-                    // Mounting bolts
+            // Mounting bolts
             bolt_gap = 10;
             bolt_inset = 4;
             bolt_width = 3;
@@ -427,18 +438,14 @@ module kossel_effector(radius = effector_radius,
 }
 
 
-use <E3D/v6_lite.scad>
+difference() {
 scale([scaler, scaler, scaler]) {
-  % translate([0, 0, 34-lock_tolerance/2]) union() {
-    if (false) {
-        translate([hotend_lock_distance/2, 0, 0]) rotate([0, 0, 90]) e3d_v6_lite();
-        translate([-hotend_lock_distance/2, 0, 0]) rotate([0, 0, 90]) e3d_v6_lite();
+  % translate([0, 0, hotend_wall + lock_tolerance]) if (false) {
+        translate([hotend_lock_distance/2, 0, 0]) hotend_cut(tolerance=0);
+        translate([-hotend_lock_distance/2, 0, 0]) hotend_cut(tolerance=0);
     } else {
-        e3d_v6_lite();
+        hotend_cut(tolerance=0);
     }
-}
-
-
 
 translate([0, 100, -hotend_wall])
   twist_lock_x1();
@@ -446,12 +453,13 @@ translate([0, 100, -hotend_wall])
 translate([100, 0, -hotend_wall])
   rotate([0, 0, 180]) twist_lock_x1();
 
-translate([-100, 0, hotend_height + effector_height + hotend_wall]) rotate([180, 0, 0])
+translate([100, 100, hotend_height + effector_height + hotend_wall]) rotate([180, 0, 0])
 rotate([0, 0, 180])
   twist_fan_x1();
 
   
  kossel_effector();
+}
 }
 
 // vim: set shiftwidth=4 expandtab: //
