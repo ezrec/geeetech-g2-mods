@@ -273,10 +273,10 @@ module twist_fan_x1(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock
 }
         
 
-module twist_lock_cut(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock_height, height = hotend_height, wall = hotend_wall, brim = hotend_lock_brim, lock_tolerance = lock_tolerance)
+module twist_lock_cut(offset = 0, r = hotend_radius, d = hotend_lock_distance, h = hotend_lock_height, height = hotend_height, wall = hotend_wall, brim = hotend_lock_brim, lock_tolerance = lock_tolerance)
 {
     // Hotend bulk cut
-    hotend_cut(tolerance = lock_tolerance);
+    translate([offset, 0, 0]) hotend_cut(tolerance = lock_tolerance);
     
     // Fan cut
     hull_chain() {
@@ -284,7 +284,7 @@ module twist_lock_cut(r = hotend_radius, d = hotend_lock_distance, h = hotend_lo
                 rotate([-90, 0, 0]) cylinder(r = fan_radius, h = lock_tolerance, $fn = fn);
             translate([0, r+wall, h + wall*2 + height/2])
                 rotate([-90, 0, 0]) cylinder(r = fan_radius, h = lock_tolerance, $fn = fn);
-            cylinder(r = r, h = lock_tolerance, $fn = fn);
+            translate([offset, 0, 0]) cylinder(r = r, h = lock_tolerance, $fn = fn);
             translate([0, -(r+wall+lock_tolerance), h + wall*2 + height/2])
                 rotate([-90, 0, 0]) cylinder(r = fan_radius, h = lock_tolerance, $fn = fn);
             translate([0, -(r+wall+lock_tolerance+screw_depth)-lock_tolerance, h + wall*2 + lock_tolerance + height/2])
@@ -294,13 +294,12 @@ module twist_lock_cut(r = hotend_radius, d = hotend_lock_distance, h = hotend_lo
 
 module twist_lock_x2(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock_height, height = hotend_height, wall = hotend_wall, brim = hotend_lock_brim, lock_tolerance = lock_tolerance)
 {
-    translate([0, 0, wall]) difference() {
+    translate([0, 0, wall + lock_tolerance]) difference() {
         twist_lock_base(r = r, d = d, h = h, wall = wall, brim = brim, lock_tolerance = -lock_tolerance);
         
         for (i=[-d/2:d:d/2]) {
             // Hotend bulk cut
-            translate([i, 0, 0]) 
-                twist_lock_cut(r = r, d = d, h = h, wall = wall, brim = brim, lock_tolerance = lock_tolerance);
+            twist_lock_cut(offset = i, r = r, d = d, h = h, wall = wall, brim = brim, lock_tolerance = lock_tolerance);
         }
         
         // Slice in half
@@ -314,7 +313,7 @@ module twist_lock_x1(r = hotend_radius, d = hotend_lock_distance, h = hotend_loc
         twist_lock_base(r = r, d = d, h = h, wall = wall, brim = brim, lock_tolerance = -lock_tolerance);
     
         // Hotend bulk cut
-        twist_lock_cut(r = r, d = d, h = h, wall = wall, brim = brim, lock_tolerance = lock_tolerance);
+        twist_lock_cut(offset = 0, r = r, d = d, h = h, wall = wall, brim = brim, lock_tolerance = lock_tolerance);
     
         
         // Slice in half
@@ -351,8 +350,7 @@ module kossel_effector(radius = effector_radius,
                     linear_extrude(height = lock_wall) difference() {
                         twist_fan_sketch(delta = lock_wall+lock_tolerance);
                         twist_fan_sketch(delta = lock_tolerance);
-                        translate([-50, -50]) square([100, 50]);
-                        translate([-fan_width/2, 0]) square([fan_width, fan_width]);
+                        translate([-fan_width/2, -fan_width]) square([fan_width, fan_width*2]);
                     }
                 }
                     
@@ -437,28 +435,46 @@ module kossel_effector(radius = effector_radius,
     }
 }
 
+hotend_duplex = false;
+
+use <E3D/v6_lite.scad>
+scale([scaler, scaler, scaler]) {
+* translate([0, 0, 34+hotend_wall + lock_tolerance]) {
+    if (hotend_duplex) {
+        translate([-hotend_lock_distance/2, 0, 0]) e3d_v6_lite();
+        translate([hotend_lock_distance/2, 0, 0]) e3d_v6_lite();
+    } else {
+        e3d_v6_lite();
+    }
+}
 
 difference() {
-scale([scaler, scaler, scaler]) {
-  % translate([0, 0, hotend_wall + lock_tolerance]) if (false) {
+    * translate([0, 0, hotend_wall + lock_tolerance]) if (hotend_duplex) {
         translate([hotend_lock_distance/2, 0, 0]) hotend_cut(tolerance=0);
         translate([-hotend_lock_distance/2, 0, 0]) hotend_cut(tolerance=0);
     } else {
         hotend_cut(tolerance=0);
     }
 
-translate([0, 100, -hotend_wall])
-  twist_lock_x1();
+//translate([0, 100, -hotend_wall])
+  * if (hotend_duplex)
+      twist_lock_x2();
+  else
+      twist_lock_x1();
 
-translate([100, 0, -hotend_wall])
-  rotate([0, 0, 180]) twist_lock_x1();
+//translate([100, 0, -hotend_wall])
+* rotate([0, 0, 180])
+    if (hotend_duplex)
+        twist_lock_x2();
+    else
+        twist_lock_x1();
 
-translate([100, 100, hotend_height + effector_height + hotend_wall]) rotate([180, 0, 0])
-rotate([0, 0, 180])
+// translate([100, 100, hotend_height + effector_height + hotend_wall]) rotate([180, 0, 0])
+* rotate([0, 0, 180])
   twist_fan_x1();
 
   
- kossel_effector();
+kossel_effector();
 }
 }
 
