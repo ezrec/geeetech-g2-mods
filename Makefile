@@ -11,6 +11,7 @@ SCAD := \
 	mk8_extruder_guide.scad \
 	rod_end_shim.scad \
 	e3d_chimera_spider.scad \
+	ptfe_splicer.scad \
 	universal_spider.scad \
 	universal_probe.scad \
 	universal_fan_duct.scad
@@ -32,6 +33,7 @@ MODELS := \
 	jhead_lock_x2.stl \
 	e3d_chimera_spider_no_probe.stl \
 	e3d_chimera_spider_z_probe.stl \
+	ptfe_splicer.stl \
 	universal_spider.stl \
 	universal_spider_plate.stl \
 	universal_probe.stl \
