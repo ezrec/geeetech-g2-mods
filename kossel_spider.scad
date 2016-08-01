@@ -174,18 +174,19 @@ module measure(distance = 5, unit = "n")
 
 module hotend_cut(tolerance = lock_tolerance)
 {
+    translate([0, 0, -0.1])
     rotate_extrude(angle = 360, $fn = fn) {
         intersection() {
             offset(delta = tolerance, chamfer = true) {
                 /* Build radius profile of hotend from bottom up */
                 
                 /* Body */
-                square([hotend_radius, hotend_height-hotend_shoulder_height]);
-                translate([0, hotend_height-hotend_shoulder_height]) {
+                square([hotend_radius, hotend_height-hotend_shoulder_height+0.1]);
+                translate([0, hotend_height-hotend_shoulder_height+0.1]) {
                     square([hotend_shoulder_diameter/2, hotend_shoulder_height]);
                     translate([0, hotend_shoulder_height]) {
-                        square([hotend_groove_diameter/2, hotend_groove_height]);
-                        translate([0, hotend_groove_height])
+                        square([hotend_groove_diameter/2, hotend_groove_height+0.01]);
+                        translate([0, hotend_groove_height+0.01])
                             square([hotend_inlet_diameter/2, hotend_wall*2]);
                     }
                 }
@@ -276,7 +277,7 @@ module twist_fan_x1(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock
 module twist_lock_cut(offset = 0, r = hotend_radius, d = hotend_lock_distance, h = hotend_lock_height, height = hotend_height, wall = hotend_wall, brim = hotend_lock_brim, lock_tolerance = lock_tolerance)
 {
     // Hotend bulk cut
-    translate([offset, 0, 0]) hotend_cut(tolerance = lock_tolerance);
+    translate([offset, 0, lock_tolerance]) hotend_cut(tolerance = lock_tolerance);
     
     // Fan cut
     hull_chain() {
@@ -404,10 +405,10 @@ module kossel_effector(radius = effector_radius,
             bolt_gap = 10;
             bolt_inset = 4;
             bolt_width = 3;
+            for (a=[0:180:180]) rotate([0, 0, a])
             translate([0, -(radius-holder-bolt_inset), -0.1]) {
                 for (i = [-bolt_gap/2:bolt_gap:bolt_gap/2])
                     translate([i, 0, 0]) {
-                        cylinder(d=6,h=2.5+0.1,$fn=6);
                         round_hole(r=bolt_width/2, h = height);
                         translate([0, 0, height-2.5+0.1])
                             cylinder(d=6+lock_tolerance*2,h=2.5+0.1,$fn=6);
@@ -435,47 +436,38 @@ module kossel_effector(radius = effector_radius,
     }
 }
 
-hotend_duplex = false;
+hotend_duplex = true;
 
 use <E3D/v6_lite.scad>
 scale([scaler, scaler, scaler]) {
-* translate([0, 0, 34+hotend_wall + lock_tolerance]) {
+ translate([0, 0, 34*0 + lock_tolerance]) {
     if (hotend_duplex) {
-        translate([-hotend_lock_distance/2, 0, 0]) e3d_v6_lite();
-        translate([hotend_lock_distance/2, 0, 0]) e3d_v6_lite();
+        translate([-hotend_lock_distance/2, 0, 0]) rotate([0, 0, 0]) e3d_v6_lite();
+        translate([hotend_lock_distance/2, 0, 0]) rotate([0, 0, 180]) e3d_v6_lite();
     } else {
         e3d_v6_lite();
     }
 }
 
-difference() {
-    * translate([0, 0, hotend_wall + lock_tolerance]) if (hotend_duplex) {
-        translate([hotend_lock_distance/2, 0, 0]) hotend_cut(tolerance=0);
-        translate([-hotend_lock_distance/2, 0, 0]) hotend_cut(tolerance=0);
-    } else {
-        hotend_cut(tolerance=0);
-    }
-
-//translate([0, 100, -hotend_wall])
-  * if (hotend_duplex)
+* translate([0, 100, -hotend_wall])
+  if (hotend_duplex) {
       twist_lock_x2();
-  else
+  } else {
       twist_lock_x1();
+  }
 
-//translate([100, 0, -hotend_wall])
-* rotate([0, 0, 180])
+* translate([100, 0, -hotend_wall])
+ rotate([0, 0, 180])
     if (hotend_duplex)
         twist_lock_x2();
     else
         twist_lock_x1();
 
-// translate([100, 100, hotend_height + effector_height + hotend_wall]) rotate([180, 0, 0])
-* rotate([0, 0, 180])
-  twist_fan_x1();
+* translate([100, 100, hotend_height + effector_height + hotend_wall])  rotate([180, 0, 0])
+  rotate([0, 0, 180])  twist_fan_x1();
 
   
 kossel_effector();
-}
 }
 
 // vim: set shiftwidth=4 expandtab: //
