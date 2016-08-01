@@ -14,7 +14,8 @@ SCAD := \
 	ptfe_splicer.scad \
 	universal_spider.scad \
 	universal_probe.scad \
-	universal_fan_duct.scad
+	universal_fan_duct.scad \
+	mcspider.scad
 
 MODELS := \
 	geeetech_rostock_g2_lock_ring.stl \
@@ -45,7 +46,12 @@ MODELS := \
 	universal_fan_duct_clip.stl \
 	universal_fan_duct_pipe.stl \
 	universal_fan_duct_pipe_connector.stl \
-	universal_fan_duct_22mm_connector.stl
+	universal_fan_duct_22mm_connector.stl \
+	mcspider_lock_x1_fan.stl \
+	mcspider_lock_x1_foot.stl \
+	mcspider_lock_x2.stl \
+	mcspider_foot.stl \
+	mcspider_effector.stl
 
 
 
