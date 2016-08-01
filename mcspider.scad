@@ -195,7 +195,7 @@ module hotend_cut(tolerance = lock_tolerance, snip = false)
     }
 }
 
-module mcspider_lock_base(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock_height, height = hotend_height, wall = hotend_wall, brim = hotend_lock_brim, lock_tolerance = lock_tolerance, fan= true)
+module mcspider_lock_fitting(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock_height, height = hotend_height, wall = hotend_wall, brim = hotend_lock_brim, lock_tolerance = lock_tolerance)
 {
     radius = hotend_lock_distance/2 + hotend_lock_radius + lock_tolerance;
     lock_radius = radius + brim;
@@ -211,8 +211,13 @@ module mcspider_lock_base(r = hotend_radius, d = hotend_lock_distance, h = hoten
             }
         }
     }
-
+    
     cylinder(r = radius, h = effector_height, $fn = fn);
+}
+
+module mcspider_lock_base(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock_height, height = hotend_height, wall = hotend_wall, brim = hotend_lock_brim, lock_tolerance = lock_tolerance, fan= true)
+{
+    mcspider_lock_fitting(r = r, d = d, h = h, height = height, wall = wall, brim = brim, lock_tolerance = lock_tolerance);
 
     for (n = [-1:2:1]) {
         i = d/2 * n;
@@ -220,14 +225,15 @@ module mcspider_lock_base(r = hotend_radius, d = hotend_lock_distance, h = hoten
             translate([0, 0, hotend_nozzle_height])
                 hotend_cut(tolerance = hotend_wall, snip = true);
 
-            rotate([0, 0, i > 0 ? 180 : 0]) {
-                // Fan mount
-                translate([-fan_width/2,-(r + wall + screw_depth),hotend_nozzle_height])
-                    cube([fan_width, r + wall + screw_depth, hotend_height+0.1 ]);
-                // Airline holder
-                rotate([0, 0, 0]) translate([0, r + airline_od/2 + wall, hotend_nozzle_height])
+            // Fan mount
+            rotate([0, 0, i > 0 ? 180 : 0])
+                translate([-fan_width/2,-(r + screw_depth),hotend_nozzle_height])
+                    cube([fan_width, r + screw_depth + r*1/2, hotend_height - (effector_height - hotend_groove_height)+0.1 ]);
+            
+            // Airline holder
+            rotate([0, 0, i > 0 ? 180 : 0])
+                translate([0, r + airline_od/2 + wall, hotend_nozzle_height])
                     cylinder(d = airline_od+wall*2, h = 5, $fn = 6);
-            }
         }
     }
 }
@@ -275,7 +281,7 @@ module mcspider_lock_cut(offset = 0, r = hotend_radius, d = hotend_lock_distance
 
 module mcspider_lock_x2(r = hotend_radius, d = hotend_lock_distance, h = hotend_lock_height, height = hotend_height, wall = hotend_wall, brim = hotend_lock_brim, lock_tolerance = lock_tolerance, fan = true)
 {
-    translate([0, 0, wall + lock_tolerance]) difference() {
+    difference() {
         mcspider_lock_base(r = r, d = d, h = h, wall = wall, brim = brim, lock_tolerance = -lock_tolerance, fan = fan);
 
         for (i=[-d/2:d:d/2]) {
@@ -284,7 +290,7 @@ module mcspider_lock_x2(r = hotend_radius, d = hotend_lock_distance, h = hotend_
         }
 
         // Slice in half
-        translate([-100,-100,-100]) cube([200, 100 + lock_tolerance/2, 200]);
+        translate([-100,-100,-100]) cube([200, 100 + lock_tolerance, 200]);
     }
 }
 
@@ -299,7 +305,7 @@ module mcspider_lock_x1(r = hotend_radius, h = hotend_lock_height, height = hote
             mcspider_lock_cut(offset = 0, r = r, d = 0, h = h, wall = wall, brim = brim, lock_tolerance = lock_tolerance);
 
         // Slice in half
-        translate([-100,-100,-100]) cube([200, 100 + lock_tolerance*2, 200]);
+        translate([-100,-100,-100]) cube([200, 100 + lock_tolerance, 200]);
     }
 }
 
@@ -415,17 +421,15 @@ module mcspider_effector(radius = effector_radius,
                 }
             }
 
-            // FIXME: Insert twist lock
+            // Carve out twist lock
             lock_angle = 20;
             rotate([0, 0, lock_angle]) {
-                translate([0, 0, -lock_tolerance]) mcspider_lock_base();
+                translate([0, 0, -lock_tolerance]) mcspider_lock_fitting();
+                translate([0, 0, -lock_wall-lock_tolerance]) mcspider_lock_fitting();
                 translate([0, 0, lock_wall+lock_tolerance])
-                    mcspider_lock_base();
-                rotate([0, 0, -lock_angle]) {
-                    translate([0, 0, lock_wall+lock_tolerance])
-                        mcspider_lock_base();
-
-                }
+                    mcspider_lock_fitting();
+                rotate([0, 0, -lock_angle])
+                    mcspider_lock_fitting();
             }
 
         }
@@ -462,7 +466,15 @@ module mcspider_assembly(hotend_duplex = false)
 
     mcspider_effector();
 
-    mcspider_foot();
+    if (hotend_duplex) {
+        translate([-hotend_lock_distance/2, 0, 0])
+            mcspider_foot();
+        rotate([0, 0, 180])
+            translate([-hotend_lock_distance/2, 0, 0])
+                mcspider_foot();
+    } else {
+        mcspider_foot();
+    }
 }
 
 module mcspider_plate()
@@ -492,6 +504,6 @@ module mcspider_plate()
 
 }
 
-mcspider_plate();
+mcspider_assembly();
 
 // vim: set shiftwidth=4 expandtab: //
