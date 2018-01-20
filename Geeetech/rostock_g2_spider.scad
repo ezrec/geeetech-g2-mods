@@ -33,8 +33,14 @@ module geeetech_rostock_g2_spider_leg(height=8)
   }
   translate([14, 34, 6])
     rotate([0, 90, 0]) {
+
         difference() {
-            cylinder(d=12, h=9, $fn=24);
+            hull(){
+                translate([0, -16, 0])
+                cylinder(d=height/2, h=9, $fn=24);
+                cylinder(d=12, h=9, $fn=24);
+            }
+
             translate([0, 0, -0.1])
             cylinder(d=6.25, h=9.2, $fn=24);
         }
