@@ -25,32 +25,34 @@
 //
 // All units are in mm
 
-// The nozzle tip is located at (0,0,0)
+// Origin is the bottom center of the screw threads
 // The nozzle is 12.5mm high
 // The nozzle defaults to the 0.3mm geometry
-// Children attached at the bottom center of the screw threads
+// Children attached at the nozzle top
 module e3d_v6_nozzle() {
-    difference() {
-        union() {
-            cylinder(d1=0.75, d2=(0.75+2*cos(125-90)*(12.5-10.7)), h=(12.5-10.7), $fn=10);
-            translate([0, 0, (12.5-10.7)]) {
-                cylinder(r=7/sqrt(3), h=3, $fn=6);
-                translate([0, 0, 3]) {
-                    cylinder(d=5, h=1.5);
-                    translate([0,0, 1.5]) {
-                        cylinder(d=6, h=6, $fn=15);
+    translate([0, 0, -(12.5-10.7+3+1.5)])
+    {
+        difference() {
+            union() {
+                cylinder(d1=0.75, d2=(0.75+2*cos(125-90)*(12.5-10.7)), h=(12.5-10.7), $fn=10);
+                translate([0, 0, (12.5-10.7)]) {
+                    cylinder(r=7/sqrt(3), h=3, $fn=6);
+                    translate([0, 0, 3]) {
+                        cylinder(d=5, h=1.5);
+                        translate([0,0, 1.5]) {
+                            cylinder(d=6, h=6, $fn=15);
+                        }
                     }
                 }
             }
+            translate([0, 0, -0.1])
+                cylinder(r=0.3, h=(12.5-10.7)+0.1);
+            translate([0, 0, 12.5-10.7])
+                cylinder(d=2, h=10.7+0.1, $fn=10);
         }
-        translate([0, 0, -0.1])
-            cylinder(r=0.3, h=(12.5-10.7)+0.1);
-        translate([0, 0, 12.5-10.7])
-            cylinder(d=2, h=10.7+0.1, $fn=10);
-    }
 
-    translate([0, 0, (12.5-10.7+3+1.5)])
-    children();
+        children();
+    }
 }
 
 // vim: set shiftwidth=4 expandtab: //

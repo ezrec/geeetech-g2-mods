@@ -26,13 +26,13 @@
 
 include <utility.scad>
 
-include <v6_block.scad>
-include <v6_nozzle.scad>
+use <v6_block.scad>
+use <v6_nozzle.scad>
 
-// Cold side of the hot end, origin at center of filament feed, bottom of sink
-// Children are attached at the bottom center of the groove mount
+// Cold side of the hot end, origin at the bottom center of the groove mount
+// Children are attached at center of filament feed, bottom of sink
 module e3d_v6_lite_sink() {
-    difference() {
+    translate([0, 0, -35]) difference() {
         union() {
             // M6x1 threaded connector
             translate([0, 0, -5.1]) {
@@ -77,19 +77,17 @@ module e3d_v6_lite_sink() {
         }
     }
 
-    children();
+    translate([0, 0, -35]) children();
 }
 
 // Origin is bottom center of the groove mount
-module e3d_v6_lite()
+module e3d_v6_lite(volcano=false)
 {
-    translate([0, 0, -53])
-        e3d_v6_nozzle()
-        e3d_v6_block()
-        e3d_v6_lite_sink();
+    e3d_v6_lite_sink()
+    e3d_v6_block(volcano=volcano)
+    e3d_v6_nozzle();
 }
 
-e3d_v6_lite();
-
+e3d_v6_lite(volcano=true);
 
 // vim: set shiftwidth=4 expandtab: //
