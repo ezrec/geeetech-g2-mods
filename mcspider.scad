@@ -53,6 +53,9 @@ effector_holder_hole = 9; // [1:20]
 // Flat-to-flat diameter of the internal hex mount
 effector_mount_hex = 40; // [0:100]
 
+/* [ Wiring Gap ] */
+wiring_gap = 7.5; // [0:15]
+
 /* [Hotend Lock] */
 
 // Hotend model
@@ -64,9 +67,14 @@ hotend_wall = 2; // [1:5]
 // Standard airline tubing ID/OD in mm
 airline_od = 6;     // 6mm
 airline_id = 4;     // 4mm
+airline_foot_height = 5; // 5mm
+
+// Pencil probe size
+probe_height = 10;
+probe_diameter = 7;
 
 // hotend_model==0: E3D v6
-e3dv6_hotend_nozzle_height = 20;
+e3dv6_hotend_nozzle_height = 19;
 e3dv6_hotend_diameter = 22;
 e3dv6_hotend_height = 33;
 e3dv6_hotend_groove_diameter = 12;
@@ -233,7 +241,7 @@ module mcspider_lock_base(r = hotend_radius, d = hotend_lock_distance, h = hoten
             // Airline holder
             rotate([0, 0, i > 0 ? 180 : 0])
                 translate([0, r + airline_od/2 + wall, hotend_nozzle_height])
-                    cylinder(d = airline_od+wall*2, h = 5, $fn = 6);
+                    cylinder(d = airline_od+wall*2, h = airline_foot_height, $fn = 6);
         }
     }
 }
@@ -246,9 +254,20 @@ module mcspider_lock_cut(offset = 0, r = hotend_radius, d = hotend_lock_distance
             hotend_cut(tolerance = lock_tolerance);
 
         rotate([0, 0, offset > 0 ? 180 : 0]) {
-        // Airline cut
+            // Airline cut
             translate([0, r + airline_od/2 + wall, 0])
                     cylinder(d = airline_od, h = hotend_height + hotend_nozzle_height + effector_height + 0.1, $fn = fn);
+                
+            // Wiring cut
+            if (offset == 0) {              
+                rotate([0, 0, -30]) 
+                        translate([-wiring_gap/2, r + wall*2, 0])
+                            cube([wiring_gap, r, hotend_height + hotend_nozzle_height + effector_height + 0.1]);
+            } else {
+                translate([-offset, 0, 0]) rotate([0, 0, 30]) translate([wiring_gap/4, r + wall*3, 0])
+                            cube([wiring_gap, r, hotend_height + hotend_nozzle_height + effector_height + 0.1]);
+            }
+                                
 
             // Fan cut
             translate([0, 0, hotend_nozzle_height]) hull() {
@@ -309,6 +328,31 @@ module mcspider_lock_x1(r = hotend_radius, h = hotend_lock_height, height = hote
     }
 }
 
+module mcspider_lock_probe(r = hotend_radius, h = hotend_lock_height, height = hotend_height, wall = hotend_wall, brim = hotend_lock_brim, lock_tolerance = lock_tolerance)
+{
+    difference() {
+        union() {
+            mcspider_lock_fitting(r = r, d = 0, h = h, wall = wall, brim = brim, lock_tolerance = -lock_tolerance);
+            translate([0, 0, -probe_height])
+                cylinder(h = probe_height + 0.01, r = probe_diameter/2 + wall*2, $fn = fn);
+        }
+        
+        // Remove probe guide
+        translate([0, 0, -probe_height - 0.01])
+            cylinder(h = probe_height + hotend_lock_height*2 + 0.02, r = probe_diameter/sqrt(3), $fn = 6);
+        
+        // Remove some extra mass
+        for (a = [0:5]) {
+            rotate([0, 0, 15 + 30 * a]) translate([2*probe_diameter + wall, 0, -0.01])
+                cylinder(d = probe_diameter, h = hotend_lock_height*2+0.02, $fn = 5);
+        }
+
+        // Slice in half
+        translate([-100,-100,-100]) cube([200, 100 + lock_tolerance, 200]);
+    }
+}
+
+
 module mcspider_lock_x1_fan()
 {
     mcspider_lock_x1(fan = true);
@@ -330,38 +374,71 @@ module shear_y_z(z = 5, y = 10)
 
 module mcspider_foot()
 {
-    translate([0, 0, hotend_wall + lock_tolerance -hotend_height - hotend_nozzle_height]) {
+    translate([0, 0, hotend_wall + lock_tolerance -hotend_height - hotend_nozzle_height]) difference() {
+        mcspider_foot_of(cut=false);
+        mcspider_foot_of(cut=true);
+    }
+}
+
+module mcspider_foot_of(cut=false)
+{
+    nozzle_target = hotend_radius + hotend_wall + airline_od/2;
+    nozzle_offset = 8;
+    nozzle_stem = 3;
+    
+    if (!cut)
+    {
         translate([0, hotend_radius + airline_od/2 + hotend_wall, 0]) {
             // Interlock
-            translate([0, 0, hotend_nozzle_height]) difference() {
-                translate([0, 0, -hotend_nozzle_height * 1/3])
-                    cylinder(r = airline_od/2 + hotend_wall + lock_tolerance + hotend_wall, h = 5 + hotend_nozzle_height * 1/3, $fn = 6);
-                cylinder(r = airline_od/2 + hotend_wall + lock_tolerance, h = 5.1, $fn = 6);
-                translate([0, -(hotend_radius + hotend_wall + airline_od/2), 0])
-                    cylinder(r = hotend_radius + hotend_wall + lock_tolerance, h = 5.2);
-                translate([0, 0, 2.5]) rotate([90, 0, 180])
-                    cylinder(d = 3, h = airline_od/2 + hotend_wall*2 + lock_tolerance + 0.1, $fn = fn);
-                translate([0, 0, -hotend_nozzle_height * 1/3 -0.1])
-                    cylinder(d1 = airline_id, d2 = airline_od + hotend_wall*2, h = hotend_nozzle_height * 1/3 + 0.2, $fn = fn);
-            }
-            // Airline adapter
-            translate([0, -hotend_wall, hotend_nozzle_height * 1/3]) shear_y_z(z=hotend_nozzle_height * 1/3, y = hotend_wall) difference() {
-                rotate([0, 0, 45]) cylinder(r = hotend_wall + airline_id/2, h = hotend_nozzle_height * 1/3, $fn = fn);
-                translate([0, 0, -0.1]) cylinder(d = airline_id, h = hotend_nozzle_height * 1/3 + 0.2, $fn = fn);
+            translate([0, 0, hotend_nozzle_height]) {
+               translate([0, 0, -hotend_nozzle_height * 1/3])
+                {
+                    cylinder(r = airline_od/2 + hotend_wall + lock_tolerance + hotend_wall, h = airline_foot_height + hotend_nozzle_height * 1/3, $fn = 6);
+                   translate([0, 0, -nozzle_stem])
+                        cylinder(d=airline_od + hotend_wall*2, h = nozzle_stem, $fn=fn);
+                }
+            } 
+        }
+        
+        // Nozzle
+        translate([0, nozzle_offset, 0]) {
+            shear_y_z(z = hotend_nozzle_height * 2/3 - nozzle_stem, y = nozzle_target - nozzle_offset) {
+                cylinder(d1 = 1.4 * airline_od, d2 = airline_id + hotend_wall*2, h = hotend_nozzle_height * 2/3 - nozzle_stem, $fn = fn);
             }
         }
-        difference() {
-            // Nozzle
-            shear_y_z(z = hotend_nozzle_height * 1/3, y = hotend_radius + airline_od/2) {
-                difference() {
-                    cylinder(d = airline_id + hotend_wall*2, h = hotend_nozzle_height * 1/3, $fn = fn);
-                    translate([0, 0, -0.1])
-                        cylinder(d = airline_id, h = hotend_nozzle_height * 1/3 + 0.2, $fn = fn);
+    }
+    else
+    {
+        translate([0, 0, hotend_nozzle_height])
+            cylinder(r = hotend_radius + hotend_wall + lock_tolerance, h = 5.2);
+        
+        translate([0, hotend_radius + airline_od/2 + hotend_wall, 0]) {
+            // Interlock
+            translate([0, 0, hotend_nozzle_height]) {
+                translate([0, 0, -hotend_nozzle_height * 1/3 -0.1]) {
+                    cylinder(d1 = airline_id, d2 = airline_od + hotend_wall*2, h = hotend_nozzle_height * 1/3 + 0.2, $fn = fn);
+                
+                   translate([0, 0, -nozzle_stem-0.1])
+                        cylinder(d=airline_od + tolerance*2, h = nozzle_stem + 0.2, $fn=fn);
+                }
+                cylinder(d = airline_od, h = hotend_nozzle_height * 2/3 + 0.2, $fn = fn);
+                
+                // Ailine hook mount
+                translate([0, 0, -airline_foot_height]) {
+                    cylinder(r = airline_od/2 + hotend_wall + lock_tolerance, h = airline_foot_height * 2 - hotend_wall , $fn = 6);
+                    translate([-50, -(hotend_radius + hotend_wall + airline_od/2), 0])
+                        cube([100, (hotend_radius + hotend_wall + airline_od/2), airline_foot_height + lock_tolerance]);
                 }
             }
-            rotate([0, 0, 45]) cylinder(r = hotend_nozzle_height * 1/3, h = hotend_nozzle_height, $fn = 4);
-            cylinder(r = 20, h = 1);
         }
+        
+       translate([0, nozzle_offset, 0.5]) {
+            shear_y_z(z = hotend_nozzle_height * 2/3 - nozzle_stem - 1, y = nozzle_target - nozzle_offset) {
+                    translate([0, 0, -0.1])
+                        cylinder(d1 = 1.4 * airline_od - hotend_wall, d2 = airline_id, h = hotend_nozzle_height * 2/3 - nozzle_stem, $fn = fn);
+            }
+        }
+        translate([-50, -50, -0.1]) cube([100, 50 + nozzle_offset, 100]);
     }
 }
 
@@ -445,24 +522,26 @@ module mcspider_assembly(hotend_duplex = false)
             translate([-hotend_lock_distance/2, 0, 0]) rotate([0, 0, 0]) e3d_v6_lite();
             translate([hotend_lock_distance/2, 0, 0]) rotate([0, 0, 180]) e3d_v6_lite();
         } else {
-            e3d_v6_lite();
+            rotate([0, 0, 90]) e3d_v6_lite();
         }
     }
 
     % translate([0, 0, hotend_wall + lock_tolerance -hotend_height - hotend_nozzle_height])
         translate([-20, -20, -0.1]) cube([40, 40, 0.1]);
 
-    if (hotend_duplex) {
-          mcspider_lock_x2();
-    } else {
-          mcspider_lock_x1_foot();
-    }
+    union() {
+        if (hotend_duplex) {
+              mcspider_lock_x2();
+        } else {
+              mcspider_lock_x1_foot();
+        }
 
-    rotate([0, 0, 180])
-    if (hotend_duplex)
-        mcspider_lock_x2();
-    else
-        mcspider_lock_x1_fan();
+        rotate([0, 0, 180])
+        if (hotend_duplex)
+            mcspider_lock_x2();
+        else
+            mcspider_lock_x1_fan();
+    }
 
     mcspider_effector();
 
