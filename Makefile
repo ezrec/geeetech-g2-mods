@@ -1,6 +1,6 @@
 
 MKDIR ?= mkdir -p
-OPENSCAD ?= openscad
+OPENSCAD ?= openscad-nightly
 
 SCAD := \
 	Geeetech/rostock_g2_lock_ring.scad \
@@ -69,4 +69,4 @@ stl-%.scad:
 
 stl/%.stl: stl-%.scad
 	@$(MKDIR) stl
-	openscad -o $@ $^
+	$(OPENSCAD) -o $@ $^

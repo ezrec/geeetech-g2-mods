@@ -25,6 +25,8 @@
 
 use <utility.scad>
 
+// Effective diameter = 68mm
+
 module geeetech_rostock_g2_spider_leg(height=8)
 {
   translate([14, 17, 0]) {

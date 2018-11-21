@@ -23,6 +23,16 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+mm = 1;
+
+// Tolerance for through-bolt drills
+drill_tolerance=0.25 * mm;
+
+module drill(d=3, h=1, tolerance=drill_tolerance, fn = 60)
+{
+    translate([0, 0, -0.1]) cylinder(d=d + tolerance*2, h=h+0.2, $fn =fn);
+}
+
 // Like the towers of hanoi, this adds a cylinder, then calls
 // children() to stack another on top. Useful for modelling J-Heads
 module utility_hanoi(d=1, h=1, fn=24)
