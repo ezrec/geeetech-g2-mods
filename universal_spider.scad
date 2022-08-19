@@ -163,6 +163,6 @@ module universal_spider_plate()
         rotate([0, 0, 60]) translate([0, -60, -10]) jhead_lock_x2();
     }
 }
-! rotate([0, 180, 0]) e3d_v6_lock_x1();
+
 universal_spider_plate(); 
 // vim: set shiftwidth=4 expandtab: //

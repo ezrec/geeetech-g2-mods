@@ -4,6 +4,9 @@ use <Geeetech/utility.scad>
 mm = 1;
 in = 25.4 * mm;
 
+// Fit tolerance
+press_tolerance = 0.15;
+
 // Critical dimensions
 bearing_radius = 19 * mm / 2;
 rod_radius = 10 * mm / 2;
@@ -87,7 +90,7 @@ module _bearing_mount(press_thick=10, bearing_radius=20/2, press_width=4, cut = 
     } else {
         rotate([90, 0, 0]) {
                    translate([0, 0, -0.1]) cylinder(r1=bearing_radius+1, r2=bearing_radius, h=2.1, $fn=60);
-                   cylinder(r=bearing_radius, h=press_thick, $fn=60);
+                   cylinder(r=bearing_radius + press_tolerance, h=press_thick, $fn=60);
                    translate([0, 0, press_thick-2]) cylinder(r2=bearing_radius+1, r1=bearing_radius, h=2.1, $fn=60);
                }
 
